@@ -1,0 +1,5 @@
+/target
+/reports
+/.pmd
+/test-output
+/bin

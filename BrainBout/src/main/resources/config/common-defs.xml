@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+
+<tiles-definitions>
+
+	<definition name="buddyToLayout" template="/WEB-INF/jsp/template/buddytolayout.jsp">
+		<put-attribute name="title" value="Template" />
+		<put-attribute name="commonscript" value="/WEB-INF/jsp/common/commonscript.jsp" />
+		<put-attribute name="header" value="/WEB-INF/jsp/template/header.jsp" />
+		<put-attribute name="body" value="/WEB-INF/jsp/template/body.jsp" />
+		<put-attribute name="footer" value="/WEB-INF/jsp/template/footer.jsp"/>
+	</definition>
+	
+	<definition name="noHeaderLayout" template="/WEB-INF/jsp/template/buddytolayout.jsp">
+		<put-attribute name="title" value="Template" />
+		<put-attribute name="commonscript" value="/WEB-INF/jsp/common/commonscript.jsp" />
+		<put-attribute name="body" value="/WEB-INF/jsp/template/body.jsp" />
+		<put-attribute name="footer" value="/WEB-INF/jsp/template/footer.jsp"/>
+	</definition>
+	
+	<definition name="pageSectionLayout" template="/WEB-INF/jsp/template/pagesection.jsp"/>
+
+
+	<definition name="apperror" extends="noHeaderLayout">
+		<put-attribute name="title" value="Ripple Hire Application Error" />
+        <put-attribute name="body" value="/WEB-INF/jsp/common/apperror.jsp" />
+	</definition>
+    <definition name="unknownerror" extends="noHeaderLayout">
+        <put-attribute name="title" value="Ripple Hire Application Error" />
+        <put-attribute name="body" value="/WEB-INF/jsp/common/unknownerror.jsp" />
+    </definition>
+	<definition name="autherror" extends="noHeaderLayout">
+		<put-attribute name="title" value="RippleHire Authentication Error" />
+		<put-attribute name="body" value="/WEB-INF/jsp/common/autherror.jsp" />
+	</definition>
+
+	<definition name="error" extends="noHeaderLayout">
+		<put-attribute name="title" value="Ripple Hire Error" />
+        <put-attribute name="body" value="/WEB-INF/jsp/common/error.jsp" />
+	</definition>
+
+	<definition name="changepassword" extends="buddyToLayout">
+		<put-attribute name="title" value="Change Password"/>
+		<put-attribute name="commonscript" value="/WEB-INF/jsp/common/nosessioncommonscript.jsp" />
+		<put-attribute name="header" value="/WEB-INF/jsp/template/empplainheader.jsp" />
+		<put-attribute name="body" value="/WEB-INF/jsp/common/changepassword.jsp"/>
+	</definition>
+
+
+
+	<definition name="buddyToMetronicLayout" template="/WEB-INF/jsp/template/buddytometroniclayout.jsp">
+		<put-attribute name="title" value="Template" />
+		<put-attribute name="commonscript" value="/WEB-INF/jsp/common/metronicscript.jsp" />
+		<put-attribute name="header" value="/WEB-INF/jsp/template/blankfooter.jsp" />
+		<put-attribute name="body" value="/WEB-INF/jsp/template/body.jsp" />
+		<put-attribute name="footer" value="/WEB-INF/jsp/template/footer.jsp"/>
+	</definition>
+
+
+	<definition name="mobilechangepassword" extends="buddyToMetronicLayout">
+		<put-attribute name="title" value="Change Password"/>
+		<put-attribute name="body" value="/WEB-INF/jsp/common/mobileupdatepassword.jsp"/>
+		<put-attribute name="footer" value=""/>
+	</definition>
+
+
+    <definition name="mobileupdatepassword" extends="buddyToMetronicLayout">
+		<put-attribute name="title" value="Change Password"/>
+        <put-attribute name="body" value="/WEB-INF/jsp/common/mobileupdatepassword.jsp"/>
+		<put-attribute name="footer" value=""/>
+    </definition>
+
+
+	<definition name="updatepassword" extends="buddyToLayout">
+		<put-attribute name="title" value="Change Password"/>
+		<put-attribute name="commonscript" value="/WEB-INF/jsp/common/nosessioncommonscript.jsp" />
+		<put-attribute name="header" value="/WEB-INF/jsp/template/empplainheader.jsp" />
+		<put-attribute name="body" value="/WEB-INF/jsp/common/updatepassword.jsp"/>
+	</definition>
+
+</tiles-definitions>

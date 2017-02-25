@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <query name="Genre.findGenreList">
+        <![CDATA[
+            from Genre g where g.status = 'A'
+        ]]>
+    </query>
+    <query name="QuizOptions.fetchOptionsForQuiz">
+        <![CDATA[
+            from QuizOptions op where op.quiz.quizSeq = :quizSeq and op.status = 'A'
+        ]]>
+    </query>
+    <query name="Quiz.fetchQuizListByGenreCd">
+        <![CDATA[
+            select q.quizSeq from Quiz q where q.genre.genreCd = :genreCd and q.status = 'A' and
+            q.competition.competitionSeq = :competitionSeq
+            order by rand()
+        ]]>
+    </query>
+    <query name="Participant.fetchUserByEmail">
+        <![CDATA[
+            from Participant p where p.email = :email and p.status = 'A'
+        ]]>
+    </query>
+    <query name="CompetitionParticipant.fetchUserCompetitionDetails">
+        <![CDATA[
+            from CompetitionParticipant cp where cp.participant.email = :email and
+            cp.competition.competitionSeq = :competitionSeq and cp.status = 'A'
+        ]]>
+    </query>
+    <query name="CompanyCompetition.fetchCompanyCompetitionDetails">
+        <![CDATA[
+            from CompanyCompetition cc where cc.refCode = :refCd and cc.status = 'A'
+        ]]>
+    </query>
+    <query name="CompanyCompetition.fetchCompanyCompetitionDetailsBySeq">
+        <![CDATA[
+            from CompanyCompetition cc where cc.company.companySeq = :companySeq and
+            cc.competition.competitionSeq =:competitionSeq and cc.status = 'A'
+        ]]>
+    </query>
+    <query name="QuizOptions.fetchQuizCorrectOption">
+        <![CDATA[
+            select qo.quiz.quizSeq as quizSeq, qo.quizOptionsSeq as optionSeq from QuizOptions qo where  qo.quiz.quizSeq = :quizSeq
+            and qo.status = 'A' and qo.isCorrect = 'Y'
+        ]]>
+    </query>
+</hibernate-mapping>

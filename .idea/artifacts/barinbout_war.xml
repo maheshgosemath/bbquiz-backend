@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="barinbout:war">
+    <output-path>$PROJECT_DIR$/BrainBout/target</output-path>
+    <root id="archive" name="barinbout.war">
+      <element id="artifact" artifact-name="barinbout:war exploded" />
+    </root>
+  </artifact>
+</component>
