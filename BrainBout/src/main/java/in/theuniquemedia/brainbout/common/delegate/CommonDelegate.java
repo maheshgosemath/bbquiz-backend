@@ -46,8 +46,8 @@ public class CommonDelegate {
         return commonService.fetchCompanyCompetitionBySeq(companySeq, competitionSeq);
     }
 
-    public List<Integer> fetchQuizList(Integer competitionSeq) {
-        return quizService.fetchQuizList(competitionSeq);
+    public List<Integer> fetchQuizList(Integer competitionSeq, Integer maxCount) {
+        return quizService.fetchQuizList(competitionSeq, maxCount);
     }
 
     public List<QuizVO> fetchQuizVOList(List<Integer> quizSeqList) {

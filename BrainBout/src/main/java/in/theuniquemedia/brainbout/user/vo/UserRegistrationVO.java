@@ -9,16 +9,8 @@ import java.util.List;
  * Created by mahesh on 2/24/17.
  */
 public class UserRegistrationVO implements Serializable {
-    private List<QuizVO> quizVOList;
     private Integer timeLeft;
-
-    public List<QuizVO> getQuizVOList() {
-        return quizVOList;
-    }
-
-    public void setQuizVOList(List<QuizVO> quizVOList) {
-        this.quizVOList = quizVOList;
-    }
+    private String userStatus;
 
     public Integer getTimeLeft() {
         return timeLeft;
@@ -26,5 +18,13 @@ public class UserRegistrationVO implements Serializable {
 
     public void setTimeLeft(Integer timeLeft) {
         this.timeLeft = timeLeft;
+    }
+
+    public String getUserStatus() {
+        return userStatus;
+    }
+
+    public void setUserStatus(String userStatus) {
+        this.userStatus = userStatus;
     }
 }

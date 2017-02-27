@@ -16,6 +16,7 @@ public class CompetitionParticipant {
     private Date startTime;
     private Integer timeTaken;
     private Integer score;
+    private String token;
     private char submitted;
     private char status;
 
@@ -23,13 +24,14 @@ public class CompetitionParticipant {
     }
 
     public CompetitionParticipant(Integer companySeq, Competition competition, Participant participant, Date startTime,
-                                  Integer timeTaken, Integer score, char submitted, char status) {
+                                  Integer timeTaken, Integer score, String token, char submitted, char status) {
         this.companySeq = companySeq;
         this.competition = competition;
         this.participant = participant;
         this.startTime = startTime;
         this.timeTaken = timeTaken;
         this.score = score;
+        this.token = token;
         this.submitted = submitted;
         this.status = status;
     }
@@ -99,6 +101,15 @@ public class CompetitionParticipant {
 
     public void setScore(Integer score) {
         this.score = score;
+    }
+
+    @Column(name = "TOKEN")
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 
     @Column(name="SUBMITTED")

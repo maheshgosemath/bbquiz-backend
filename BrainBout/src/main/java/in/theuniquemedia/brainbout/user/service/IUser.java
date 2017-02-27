@@ -3,7 +3,7 @@ package in.theuniquemedia.brainbout.user.service;
 import in.theuniquemedia.brainbout.common.domain.CompetitionParticipant;
 import in.theuniquemedia.brainbout.common.domain.Participant;
 import in.theuniquemedia.brainbout.quiz.vo.QuizOptionVO;
-import in.theuniquemedia.brainbout.user.vo.UserStatusVO;
+import in.theuniquemedia.brainbout.user.vo.UserResultVO;
 import in.theuniquemedia.brainbout.user.vo.UserVO;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,8 +30,17 @@ public interface IUser {
     CompetitionParticipant getUserCompetitionData(String email, Integer competitionSeq);
 
     @Transactional
-    UserStatusVO submitCompetitionResults(String email, Integer competitionSeq, Date endDate, List<QuizOptionVO> quizOptionVOList);
+    UserResultVO submitCompetitionResults(String email, Integer competitionSeq, Date endDate, List<QuizOptionVO> quizOptionVOList);
 
     @Transactional
-    UserStatusVO fetchUserStatus(List<QuizOptionVO> quizOptionVOList);
+    UserResultVO fetchUserStatus(List<QuizOptionVO> quizOptionVOList);
+
+    @Transactional
+    Integer fetchUserTime(Integer companySeq, Integer competitionSeq, String email);
+
+    @Transactional
+    Integer getUserScore(Integer competitionSeq, String email);
+
+    @Transactional
+    CompetitionParticipant getUserStats(String token);
 }

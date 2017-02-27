@@ -2,20 +2,19 @@ package in.theuniquemedia.brainbout.user.service.impl;
 
 import in.theuniquemedia.brainbout.common.constants.AppConstants;
 import in.theuniquemedia.brainbout.common.delegate.CommonDelegate;
-import in.theuniquemedia.brainbout.common.domain.Company;
-import in.theuniquemedia.brainbout.common.domain.Competition;
-import in.theuniquemedia.brainbout.common.domain.CompetitionParticipant;
-import in.theuniquemedia.brainbout.common.domain.Participant;
+import in.theuniquemedia.brainbout.common.domain.*;
 import in.theuniquemedia.brainbout.common.repository.IRepository;
 import in.theuniquemedia.brainbout.common.util.CommonUtil;
 import in.theuniquemedia.brainbout.quiz.vo.QuizOptionVO;
 import in.theuniquemedia.brainbout.user.service.IUser;
-import in.theuniquemedia.brainbout.user.vo.UserStatusVO;
+import in.theuniquemedia.brainbout.user.vo.UserResultVO;
 import in.theuniquemedia.brainbout.user.vo.UserVO;
+import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -107,27 +106,29 @@ public class UserService implements IUser {
 
     @Override
     @Transactional
-    public UserStatusVO submitCompetitionResults(String email, Integer competitionSeq, Date endDate, List<QuizOptionVO> quizOptionVOList) {
-        UserStatusVO userStatusVO = null;
+    public UserResultVO submitCompetitionResults(String email, Integer competitionSeq, Date endDate, List<QuizOptionVO> quizOptionVOList) {
+        UserResultVO userResultVO = null;
         CompetitionParticipant competitionParticipant = getUserCompetitionData(email, competitionSeq);
         if(competitionParticipant != null) {
-            userStatusVO = fetchUserStatus(quizOptionVOList);
-            if(userStatusVO != null) {
-                competitionParticipant.setScore(userStatusVO.getScore());
+            userResultVO = fetchUserStatus(quizOptionVOList);
+            if(userResultVO != null) {
+                userResultVO.setToken(RandomStringUtils.random(20, 0, 0, true, true, null, new SecureRandom()));
+                competitionParticipant.setScore(userResultVO.getScore());
                 competitionParticipant.setTimeTaken((CommonUtil.getNoOfMinutesDiff(endDate,
                         competitionParticipant.getStartTime())).intValue());
                 competitionParticipant.setSubmitted('Y');
+                competitionParticipant.setToken(userResultVO.getToken());
                 competitionParticipantRepository.merge(competitionParticipant);
             }
         }
-        return userStatusVO;
+        return userResultVO;
     }
 
     @Override
     @Transactional
-    public UserStatusVO fetchUserStatus(List<QuizOptionVO> quizOptionVOList) {
+    public UserResultVO fetchUserStatus(List<QuizOptionVO> quizOptionVOList) {
         Integer score = 0;
-        UserStatusVO userStatusVO = new UserStatusVO();
+        UserResultVO userResultVO = new UserResultVO();
         List<Integer> quizSeqList = new ArrayList<>();
         for(QuizOptionVO quizOptionVO: quizOptionVOList) {
             quizSeqList.add(quizOptionVO.getQuizSeq());
@@ -143,8 +144,55 @@ public class UserService implements IUser {
                 }
             }
         }
-        userStatusVO.setQuizOptionVOList(quizOptionVOList);
-        userStatusVO.setScore(score);
-        return userStatusVO;
+        userResultVO.setQuizOptionVOList(quizOptionVOList);
+        userResultVO.setScore(score);
+        return userResultVO;
     }
+
+    @Override
+    @Transactional
+    public Integer fetchUserTime(Integer companySeq, Integer competitionSeq, String email) {
+        Integer minTime = 0;
+        CompanyCompetition companyCompetition = commonDelegate.fetchCompanyCompetitionBySeq(companySeq, competitionSeq);
+        if(companyCompetition != null) {
+            CompetitionParticipant competitionParticipant = getUserCompetitionData(email, competitionSeq);
+            if(competitionParticipant != null) {
+                minTime = Integer.valueOf(companyCompetition.getTimeLimit());
+                if (competitionParticipant.getStartTime() != null) {
+                    Long userTime = Integer.valueOf(companyCompetition.getTimeLimit()) -
+                            (CommonUtil.getNoOfMinutesDiff(new Date(), competitionParticipant.getStartTime()));
+                    minTime = Integer.min(minTime, userTime.intValue());
+                }
+                Long competitionTime = CommonUtil.getNoOfMinutesDiff(companyCompetition.getEndTime(), new Date());
+                minTime = Integer.min(minTime, competitionTime.intValue());
+            }
+        }
+        return minTime;
+    }
+
+    @Override
+    @Transactional
+    public Integer getUserScore(Integer competitionSeq, String email) {
+        CompetitionParticipant competitionParticipant = getUserCompetitionData(email, competitionSeq);
+        if(competitionParticipant != null) {
+            if(competitionParticipant.getScore() != null) {
+                return competitionParticipant.getScore();
+            }
+        }
+        return 0;
+    }
+
+    @Override
+    @Transactional
+    public CompetitionParticipant getUserStats(String token) {
+        HashMap<String, Object> queryParams = new HashMap<>();
+        queryParams.put("token", token);
+        List<CompetitionParticipant> competitionParticipantList = competitionParticipantRepository.findByNamedQuery(
+                AppConstants.FETCH_USER_COMPETITION_DETAILS, queryParams);
+        if(competitionParticipantList != null && competitionParticipantList.size() > 0) {
+            return competitionParticipantList.get(0);
+        }
+        return null;
+    }
+
 }

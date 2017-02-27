@@ -23,18 +23,6 @@ public class QuizController {
     @Autowired
     private IQuiz quizService;
 
-    @RequestMapping("quizlist")
-    public @ResponseBody
-    String fetchQuizList() {
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("quizlist", quizService.fetchQuizList(1));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return jsonObject.toString();
-    }
-
     @RequestMapping("quizinfo")
     public @ResponseBody
     ResponseEntity<QuizVO> fetchQuizInfo(@RequestParam(value="quizseq") Integer quizSeq) {

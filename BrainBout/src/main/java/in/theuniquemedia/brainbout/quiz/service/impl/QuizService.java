@@ -36,7 +36,7 @@ public class QuizService implements IQuiz {
 
     @Override
     @Transactional
-    public List<Integer> fetchQuizList(Integer competitionSeq) {
+    public List<Integer> fetchQuizList(Integer competitionSeq, Integer maxCount) {
 
         List<Integer> quizSeqList = new ArrayList<>();
         List<Integer> quizList = null;
@@ -44,7 +44,7 @@ public class QuizService implements IQuiz {
         List<Genre> genreList = commonDelegate.fetchGenreList();
         if(genreList != null && genreList.size() > 0) {
             for(Genre genre: genreList) {
-                quizList = fetchQuizListByGenre(competitionSeq, genre.getGenreCd());
+                quizList = fetchQuizListByGenre(competitionSeq, genre.getGenreCd(), maxCount);
                 if(quizList != null && quizList.size() > 0) {
                     quizSeqList.addAll(quizList);
                 }
@@ -54,12 +54,12 @@ public class QuizService implements IQuiz {
     }
 
     @Transactional
-    private List<Integer> fetchQuizListByGenre(Integer competitionSeq, String genreCd) {
+    private List<Integer> fetchQuizListByGenre(Integer competitionSeq, String genreCd, Integer maxCount) {
         HashMap<String, Object> queryParams = new HashMap<>();
         queryParams.put("genreCd", genreCd);
         queryParams.put("competitionSeq", competitionSeq);
         List<Integer> quizList = (List<Integer>)quizRepository.findObjectListByNamedQuery(AppConstants.FETCH_QUIZ_LIST_BY_GENRE_CD,
-                queryParams, 0, 3);
+                queryParams, 0, maxCount);
         return quizList;
     }
 

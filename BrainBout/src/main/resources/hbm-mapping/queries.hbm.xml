@@ -29,6 +29,11 @@
             cp.competition.competitionSeq = :competitionSeq and cp.status = 'A'
         ]]>
     </query>
+    <query name="CompetitionParticipant.fetchUserCompetitionDetailsByToken">
+        <![CDATA[
+            from CompetitionParticipant cp where cp.token = :token and cp.status = 'A'
+        ]]>
+    </query>
     <query name="CompanyCompetition.fetchCompanyCompetitionDetails">
         <![CDATA[
             from CompanyCompetition cc where cc.refCode = :refCd and cc.status = 'A'
