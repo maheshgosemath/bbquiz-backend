@@ -13,15 +13,17 @@ public class Quiz {
     private Competition competition;
     private Genre genre;
     private String quizTitle;
+    private String imgUrl;
     private char status;
 
     public Quiz() {
     }
 
-    public Quiz(Competition competition, Genre genre, String quizTitle, char status) {
+    public Quiz(Competition competition, Genre genre, String quizTitle, String imgUrl, char status) {
         this.competition = competition;
         this.genre = genre;
         this.quizTitle = quizTitle;
+        this.imgUrl = imgUrl;
         this.status = status;
     }
 
@@ -63,6 +65,15 @@ public class Quiz {
 
     public void setQuizTitle(String quizTitle) {
         this.quizTitle = quizTitle;
+    }
+
+    @Column(name = "IMG_URL")
+    public String getImgUrl() {
+        return imgUrl;
+    }
+
+    public void setImgUrl(String imgUrl) {
+        this.imgUrl = imgUrl;
     }
 
     @Column(name="STATUS")

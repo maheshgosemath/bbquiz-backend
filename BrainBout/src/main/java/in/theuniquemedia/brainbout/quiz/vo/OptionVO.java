@@ -8,6 +8,7 @@ import java.io.Serializable;
 public class OptionVO implements Serializable {
     private String optionTitle;
     private Integer optionSeq;
+    private char isCorrect;
 
     public String getOptionTitle() {
         return optionTitle;
@@ -23,5 +24,13 @@ public class OptionVO implements Serializable {
 
     public void setOptionSeq(Integer optionSeq) {
         this.optionSeq = optionSeq;
+    }
+
+    public char getIsCorrect() {
+        return isCorrect;
+    }
+
+    public void setIsCorrect(char isCorrect) {
+        this.isCorrect = isCorrect;
     }
 }

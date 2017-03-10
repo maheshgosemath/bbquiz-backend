@@ -1,5 +1,7 @@
 package in.theuniquemedia.brainbout.common.domain;
 
+import org.springframework.security.core.userdetails.User;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -11,19 +13,26 @@ import java.util.Date;
 public class Participant {
     private Integer participantSeq;
     private Company company;
+    private UserProfile userProfile;
     private String name;
+    private String firstName;
+    private String lastName;
     private String email;
-    private String participantId;
+    private String phoneNo;
     private char status;
 
     public Participant() {
     }
 
-    public Participant(Company company, String name, String email, String participantId, char status) {
+    public Participant(Company company, UserProfile userProfile, String name, String firstName, String lastName,
+                       String email, String phoneNo, char status) {
         this.company = company;
+        this.userProfile = userProfile;
         this.name = name;
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.email = email;
-        this.participantId = participantId;
+        this.phoneNo = phoneNo;
         this.status = status;
     }
 
@@ -48,6 +57,16 @@ public class Participant {
         this.company = company;
     }
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "USER_PROFILE_SEQ", nullable = false)
+    public UserProfile getUserProfile() {
+        return userProfile;
+    }
+
+    public void setUserProfile(UserProfile userProfile) {
+        this.userProfile = userProfile;
+    }
+
     @Column(name = "NAME")
     public String getName() {
         return name;
@@ -55,6 +74,24 @@ public class Participant {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Column(name = "FIRST_NAME")
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    @Column(name = "LAST_NAME")
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     @Column(name = "EMAIL")
@@ -66,13 +103,13 @@ public class Participant {
         this.email = email;
     }
 
-    @Column(name = "PARTICIPANT_ID")
-    public String getParticipantId() {
-        return participantId;
+    public String getPhoneNo() {
+        return phoneNo;
     }
 
-    public void setParticipantId(String participantId) {
-        this.participantId = participantId;
+    @Column(name = "PHONE_NO")
+    public void setPhoneNo(String phoneNo) {
+        this.phoneNo = phoneNo;
     }
 
     @Column(name="STATUS")

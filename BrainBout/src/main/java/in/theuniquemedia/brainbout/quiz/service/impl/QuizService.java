@@ -1,11 +1,14 @@
 package in.theuniquemedia.brainbout.quiz.service.impl;
 
+import in.theuniquemedia.brainbout.admin.vo.AddQuestionVO;
+import in.theuniquemedia.brainbout.admin.vo.QuestionVO;
 import in.theuniquemedia.brainbout.common.constants.AppConstants;
 import in.theuniquemedia.brainbout.common.delegate.CommonDelegate;
 import in.theuniquemedia.brainbout.common.domain.Genre;
 import in.theuniquemedia.brainbout.common.domain.Quiz;
 import in.theuniquemedia.brainbout.common.domain.QuizOptions;
 import in.theuniquemedia.brainbout.common.repository.IRepository;
+import in.theuniquemedia.brainbout.common.util.CommonUtil;
 import in.theuniquemedia.brainbout.quiz.service.IQuiz;
 import in.theuniquemedia.brainbout.quiz.vo.OptionVO;
 import in.theuniquemedia.brainbout.quiz.vo.QuizOptionVO;
@@ -61,6 +64,15 @@ public class QuizService implements IQuiz {
         List<Integer> quizList = (List<Integer>)quizRepository.findObjectListByNamedQuery(AppConstants.FETCH_QUIZ_LIST_BY_GENRE_CD,
                 queryParams, 0, maxCount);
         return quizList;
+    }
+
+    @Transactional
+    public List<Quiz> fetchAllQuiz() {
+        List<Quiz> quizList = quizRepository.findByNamedQuery(AppConstants.FETCH_ALL_QUIZ);
+        if(quizList != null && quizList.size() > 0) {
+            return quizList;
+        }
+        return null;
     }
 
     @Override
@@ -153,5 +165,107 @@ public class QuizService implements IQuiz {
         }
         quizVO.setOptionList(optionVOList);
         return quizVO;
+    }
+
+    @Override
+    @Transactional
+    public void createQuestions(AddQuestionVO addQuestionVO) {
+        Quiz quiz = new Quiz();
+
+        Genre genre = commonDelegate.fetchGenreBySeq(addQuestionVO.getGenreSeq());
+        quiz.setQuizTitle(addQuestionVO.getQuizVO().getQuizTitle());
+        quiz.setGenre(genre);
+        quiz.setCompetition(null);
+        quiz.setStatus(AppConstants.STATUS_ACTIVE);
+        Integer quizSeq = quizRepository.save(quiz);
+        saveQuizOptions(quizSeq, addQuestionVO.getQuizVO().getOptionList());
+        if(addQuestionVO.getMultipartFile() != null) {
+            CommonUtil.uploadFile(addQuestionVO.getMultipartFile(), "/home/brainbout/images/", AppConstants.QUIZ_PREFIX + String.valueOf(quizSeq));
+            quiz.setImgUrl(addQuestionVO.getMultipartFile().getOriginalFilename());
+        }
+        quizRepository.merge(quiz);
+    }
+
+    @Override
+    @Transactional
+    public void updateQuestion(AddQuestionVO addQuestionVO) {
+        Integer quizSeq = addQuestionVO.getQuizVO().getQuizSeq();
+        Quiz quiz = fetchQuizBySeq(addQuestionVO.getQuizVO().getQuizSeq());
+
+        if(quiz != null) {
+            Genre genre = commonDelegate.fetchGenreBySeq(addQuestionVO.getGenreSeq());
+            quiz.setQuizTitle(addQuestionVO.getQuizVO().getQuizTitle());
+            quiz.setGenre(genre);
+            quiz.setCompetition(null);
+            quiz.setStatus(AppConstants.STATUS_ACTIVE);
+            quizRepository.merge(quiz);
+            inactivateOptions(quizSeq);
+            saveQuizOptions(quizSeq, addQuestionVO.getQuizVO().getOptionList());
+            if (addQuestionVO.getMultipartFile() != null) {
+                CommonUtil.uploadFile(addQuestionVO.getMultipartFile(), "/home/brainbout/images/", AppConstants.QUIZ_PREFIX + String.valueOf(quizSeq));
+                quiz.setImgUrl(addQuestionVO.getMultipartFile().getOriginalFilename());
+            }
+            quizRepository.merge(quiz);
+        }
+    }
+
+    @Transactional
+    private void inactivateOptions(Integer quizSeq) {
+        List<QuizOptions> quizOptionsList = fetchOptionsForQuiz(quizSeq);
+        if(quizOptionsList != null && quizOptionsList.size() > 0) {
+            for(QuizOptions quizOptions: quizOptionsList) {
+                quizOptions.setStatus(AppConstants.STATUS_INACTIVE);
+                quizOptionsRepository.merge(quizOptions);
+            }
+        }
+    }
+
+
+    @Transactional
+    public void saveQuizOptions(Integer quizSeq, List<OptionVO> optionVOList) {
+        Quiz quiz = fetchQuizBySeq(quizSeq);
+        for(OptionVO optionVO: optionVOList) {
+            QuizOptions quizOptions = new QuizOptions();
+            quizOptions.setQuiz(quiz);
+            quizOptions.setOptionTitle(optionVO.getOptionTitle());
+            quizOptions.setIsCorrect(optionVO.getIsCorrect());
+            quizOptions.setStatus(AppConstants.STATUS_ACTIVE);
+            quizOptionsRepository.save(quizOptions);
+        }
+    }
+
+    @Override
+    @Transactional
+    public List<QuestionVO> fetchQuizList() {
+        List<QuestionVO> questionVOList = new ArrayList<>();
+        List<Quiz> quizList = fetchAllQuiz();
+        if(quizList != null && quizList.size() > 0) {
+            for(Quiz quiz: quizList) {
+                QuestionVO questionVO = new QuestionVO();
+                questionVO.setQuestionTitle(quiz.getQuizTitle());
+                questionVO.setQuestionSeq(quiz.getQuizSeq());
+                questionVO.setImgUrl(quiz.getImgUrl());
+                questionVO.setGenre(quiz.getGenre().getGenreText());
+                questionVOList.add(questionVO);
+            }
+        }
+        return questionVOList;
+    }
+
+    @Override
+    @Transactional
+    public AddQuestionVO fetchQuizDetails(Integer quizSeq) {
+        AddQuestionVO addQuestionVO = new AddQuestionVO();
+        Quiz quiz = fetchQuizBySeq(quizSeq);
+        if(quiz != null) {
+            QuizVO quizVO = fetchQuiz(quizSeq);
+            addQuestionVO.setQuizVO(quizVO);
+            addQuestionVO.setGenreSeq(quiz.getGenre().getGenreSeq());
+            QuizOptionVO quizOptionVO = fetchQuizCorrectOption(quizSeq);
+            if(quizOptionVO != null) {
+                addQuestionVO.setCorrectAnswer(quizOptionVO.getOptionSeq());
+            }
+        }
+        return addQuestionVO;
     }
 }

@@ -6,6 +6,16 @@
             from Genre g where g.status = 'A'
         ]]>
     </query>
+    <query name="Company.findCompanyList">
+        <![CDATA[
+            from Company c where c.status = 'A'
+        ]]>
+    </query>
+    <query name="CompanyCompetition.findCompetitionList">
+        <![CDATA[
+            from CompanyCompetition cc where cc.status = 'A'
+        ]]>
+    </query>
     <query name="QuizOptions.fetchOptionsForQuiz">
         <![CDATA[
             from QuizOptions op where op.quiz.quizSeq = :quizSeq and op.status = 'A'
@@ -13,8 +23,7 @@
     </query>
     <query name="Quiz.fetchQuizListByGenreCd">
         <![CDATA[
-            select q.quizSeq from Quiz q where q.genre.genreCd = :genreCd and q.status = 'A' and
-            q.competition.competitionSeq = :competitionSeq
+            select q.quizSeq from Quiz q where q.genre.genreCd = :genreCd and q.status = 'A'
             order by rand()
         ]]>
     </query>
@@ -49,6 +58,16 @@
         <![CDATA[
             select qo.quiz.quizSeq as quizSeq, qo.quizOptionsSeq as optionSeq from QuizOptions qo where  qo.quiz.quizSeq = :quizSeq
             and qo.status = 'A' and qo.isCorrect = 'Y'
+        ]]>
+    </query>
+    <query name="CompanyDomain.fetchCompanyDomain">
+        <![CDATA[
+            from CompanyDomain cd where cd.company.companySeq = :companySeq and cd.status = 'A'
+        ]]>
+    </query>
+    <query name="Quiz.fetchAllQuiz">
+        <![CDATA[
+            from Quiz q where q.status = 'A'
         ]]>
     </query>
 </hibernate-mapping>

@@ -1,5 +1,12 @@
 package in.theuniquemedia.brainbout.common.util;
 
+import org.apache.commons.lang.RandomStringUtils;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.security.SecureRandom;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -36,6 +43,66 @@ public class CommonUtil {
             /*pe.printStackTrace();*/
             return null;
         }
+    }
+
+    public static Date convertStringToDate(String utilDate, String format) {
+
+        Date newDate = null;
+        if (null != utilDate && null != format) {
+            SimpleDateFormat sdf = new SimpleDateFormat(format);
+            try {
+                newDate = sdf.parse(utilDate);
+            } catch (ParseException pe) {
+                return null;
+            }
+
+        }
+        return newDate;
+    }
+
+    public static String convertUtilDateToString(Date utilDate, String format) {
+
+        SimpleDateFormat sdf = new SimpleDateFormat(format);
+        if (utilDate == null) {
+            return "";
+        } else {
+            return sdf.format(utilDate);
+        }
+    }
+
+    public static String getRandomString() {
+        return RandomStringUtils.random(20, 0, 0, true, true, null, new SecureRandom());
+    }
+
+    public static String uploadFile(MultipartFile fileToBeUploaded, String dirPathPropKeyNm, String uniqueID) {
+        File dir = null;
+        File file = null;
+        FileOutputStream fos = null;
+        String filePath = "";
+        try {
+            if (fileToBeUploaded!=null) {
+                String dirPath = dirPathPropKeyNm;
+                dir = new File(dirPath);
+                if (!dir.exists()) {
+                    dir.mkdirs();
+                }
+                filePath = dirPath+uniqueID+fileToBeUploaded.getOriginalFilename();
+                file = new File(filePath);
+                fos = new FileOutputStream(file);
+                fos.write(fileToBeUploaded.getBytes());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (fos!=null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return filePath;
     }
 
 }

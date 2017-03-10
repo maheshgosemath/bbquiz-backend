@@ -48,13 +48,15 @@ public class UserController {
                 if (participant == null) {
                     UserVO userVO = new UserVO(name, email);
                     userService.createUser(companySeq, userVO);
+                } else {
+                    userRegistrationVO.setUserStatus(AppConstants.USER_NOT_ELIGIBLE);
                 }
                 CompetitionParticipant competitionParticipant = userService.getUserCompetitionData(email, competitionSeq);
                 if (competitionParticipant == null) {
                     userService.addUserToCompetition(email, competitionSeq);
                 } else {
                     if(competitionParticipant.getSubmitted() == 'Y') {
-                        userRegistrationVO.setUserStatus("submitted");
+                        userRegistrationVO.setUserStatus(AppConstants.USER_STATUS_SUBMITTED);
                         return new ResponseEntity<>(userRegistrationVO, HttpStatus.OK);
                     }
                 }
@@ -64,7 +66,7 @@ public class UserController {
             return new ResponseEntity<>(userRegistrationVO, HttpStatus.OK);
         } catch(Exception e) {
             e.printStackTrace();
-            return new ResponseEntity<>(new UserRegistrationVO(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(userRegistrationVO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

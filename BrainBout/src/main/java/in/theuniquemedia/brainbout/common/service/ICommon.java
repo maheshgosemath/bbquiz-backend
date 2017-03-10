@@ -1,9 +1,9 @@
 package in.theuniquemedia.brainbout.common.service;
 
-import in.theuniquemedia.brainbout.common.domain.Company;
-import in.theuniquemedia.brainbout.common.domain.CompanyCompetition;
-import in.theuniquemedia.brainbout.common.domain.Competition;
-import in.theuniquemedia.brainbout.common.domain.Genre;
+import in.theuniquemedia.brainbout.admin.vo.AddCompetitionVO;
+import in.theuniquemedia.brainbout.admin.vo.CorporateVO;
+import in.theuniquemedia.brainbout.common.domain.*;
+import in.theuniquemedia.brainbout.common.vo.CommonDetailsVO;
 import in.theuniquemedia.brainbout.common.vo.CompanyCompetitionVO;
 import in.theuniquemedia.brainbout.common.vo.CompanyVO;
 import in.theuniquemedia.brainbout.common.vo.CompetitionVO;
@@ -15,7 +15,22 @@ import java.util.List;
  * Created by mahesh on 2/20/17.
  */
 public interface ICommon {
+    @Transactional
+    Genre fetchGenreBySeq(Integer genreSeq);
+
     public List<Genre> fetchGenreList();
+
+    @Transactional
+    List<CorporateVO> fetchCompanyList();
+
+    @Transactional
+    List<AddCompetitionVO> fetchCompanyCompetitionList();
+
+    @Transactional
+    List<String> fetchCompanyDomainList(Integer companySeq);
+
+    @Transactional
+    List<CompanyDomain> fetchCompanyDomain(Integer companySeq);
 
     @Transactional
     CompanyCompetition fetchCompanyCompetitionDetails(String ref);
@@ -37,4 +52,10 @@ public interface ICommon {
 
     @Transactional
     CompanyCompetitionVO fetchCompanyCompetitionVO(String ref);
+
+    @Transactional
+    List<CommonDetailsVO> fetchcompanyDetails();
+
+    @Transactional
+    List<CommonDetailsVO> fetchGenreDetails();
 }

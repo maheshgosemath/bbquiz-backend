@@ -7,10 +7,12 @@ import in.theuniquemedia.brainbout.common.repository.IRepository;
 import in.theuniquemedia.brainbout.common.util.CommonUtil;
 import in.theuniquemedia.brainbout.quiz.vo.QuizOptionVO;
 import in.theuniquemedia.brainbout.user.service.IUser;
+import in.theuniquemedia.brainbout.user.vo.UserRegistrationRequestVO;
 import in.theuniquemedia.brainbout.user.vo.UserResultVO;
 import in.theuniquemedia.brainbout.user.vo.UserVO;
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +37,16 @@ public class UserService implements IUser {
     @Autowired
     IRepository<CompetitionParticipant, Integer> competitionParticipantRepository;
 
+    @Autowired
+    IRepository<UserProfile, Integer> userProfileRepository;
+
+    @Autowired
+    IRepository<UserProfileDetail, Integer> userProfileDetailRepository;
+
+    @Autowired
+    IRepository<UserToken, Integer> userTokenRepository;
+
+
     @Override
     @Transactional
     public void createUser(Integer companySeq, UserVO userVO) {
@@ -43,6 +55,24 @@ public class UserService implements IUser {
         participant.setCompany(company);
         participant.setName(userVO.getName());
         participant.setEmail(userVO.getEmail());
+        participant.setStatus(AppConstants.STATUS_ACTIVE);
+
+        participantRepository.save(participant);
+    }
+
+    @Transactional
+    public void createUser(Integer companySeq, Integer userProfileSeq, UserVO userVO) {
+        Participant participant = new Participant();
+        Company company = commonDelegate.fetchCompanyBySeq(companySeq);
+        UserProfile userProfile = fetchUserProfileById(userProfileSeq);
+
+        participant.setCompany(company);
+        participant.setUserProfile(userProfile);
+        participant.setName(userVO.getName());
+        participant.setFirstName(userVO.getFirstName());
+        participant.setLastName(userVO.getLastName());
+        participant.setEmail(userVO.getEmail());
+        participant.setPhoneNo(userVO.getPhoneNo());
         participant.setStatus(AppConstants.STATUS_ACTIVE);
 
         participantRepository.save(participant);
@@ -112,7 +142,7 @@ public class UserService implements IUser {
         if(competitionParticipant != null) {
             userResultVO = fetchUserStatus(quizOptionVOList);
             if(userResultVO != null) {
-                userResultVO.setToken(RandomStringUtils.random(20, 0, 0, true, true, null, new SecureRandom()));
+                userResultVO.setToken(CommonUtil.getRandomString());
                 competitionParticipant.setScore(userResultVO.getScore());
                 competitionParticipant.setTimeTaken((CommonUtil.getNoOfMinutesDiff(endDate,
                         competitionParticipant.getStartTime())).intValue());
@@ -188,11 +218,46 @@ public class UserService implements IUser {
         HashMap<String, Object> queryParams = new HashMap<>();
         queryParams.put("token", token);
         List<CompetitionParticipant> competitionParticipantList = competitionParticipantRepository.findByNamedQuery(
-                AppConstants.FETCH_USER_COMPETITION_DETAILS, queryParams);
+                AppConstants.FETCH_USER_COMPETITION_DETAILS_BY_TOKEN, queryParams);
         if(competitionParticipantList != null && competitionParticipantList.size() > 0) {
             return competitionParticipantList.get(0);
         }
         return null;
+    }
+
+    @Transactional
+    public UserProfile fetchUserProfileById(Integer userProfileSeq) {
+        return userProfileRepository.findById(UserProfile.class, userProfileSeq);
+    }
+
+    @Transactional
+    public UserProfileDetail fetchUserProfileDetailById(Integer userProfileDetailSeq) {
+        return userProfileDetailRepository.findById(UserProfileDetail.class, userProfileDetailSeq);
+    }
+
+    @Transactional
+    public UserToken fetchUserTokenById(Integer userTokenSeq) {
+        return userTokenRepository.findById(UserToken.class, userTokenSeq);
+    }
+
+    @Transactional
+    public Integer createUserProfile(UserRegistrationRequestVO userRegistrationRequestVO) {
+        UserProfile userProfile = new UserProfile();
+        userProfile.setCompnaySeq(userRegistrationRequestVO.getCompanySeq());
+        userProfile.setUserId(userRegistrationRequestVO.getUserVO().getEmail());
+
+        ShaPasswordEncoder shaPasswordEncoder = new ShaPasswordEncoder(256);shaPasswordEncoder.setEncodeHashAsBase64(true);
+        String encodedPassword = shaPasswordEncoder.encodePassword(userRegistrationRequestVO.getPassword(), null);
+        userProfile.setPassword(encodedPassword);
+
+        userProfile.setStatus(AppConstants.STATUS_INACTIVE);
+        return userProfileRepository.save(userProfile);
+    }
+
+
+    public void createUser(UserRegistrationRequestVO userRegistrationRequestVO) {
+        Integer userProfileSeq = createUserProfile(userRegistrationRequestVO);
+
     }
 
 }

@@ -1,5 +1,7 @@
 package in.theuniquemedia.brainbout.quiz.service;
 
+import in.theuniquemedia.brainbout.admin.vo.AddQuestionVO;
+import in.theuniquemedia.brainbout.admin.vo.QuestionVO;
 import in.theuniquemedia.brainbout.quiz.vo.QuizOptionVO;
 import in.theuniquemedia.brainbout.quiz.vo.QuizVO;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,4 +25,16 @@ public interface IQuiz {
 
     @Transactional
     QuizOptionVO fetchQuizCorrectOption(Integer quizSeq);
+
+    @Transactional
+    void createQuestions(AddQuestionVO addQuestionVO);
+
+    @Transactional
+    void updateQuestion(AddQuestionVO addQuestionVO);
+
+    @Transactional
+    List<QuestionVO> fetchQuizList();
+
+    @Transactional
+    AddQuestionVO fetchQuizDetails(Integer quizSeq);
 }
