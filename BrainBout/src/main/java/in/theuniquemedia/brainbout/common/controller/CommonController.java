@@ -28,6 +28,7 @@ public class CommonController {
             CompanyCompetitionVO companyCompetitionVO = commonService.fetchCompanyCompetitionVO(request.getParameter("ref"));
             return new ResponseEntity<>(companyCompetitionVO, HttpStatus.OK);
         } catch(Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(new CompanyCompetitionVO(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

@@ -99,4 +99,8 @@ public class CommonDelegate {
     public void updateQuestion(AddQuestionVO addQuestionVO) {
         quizService.updateQuestion(addQuestionVO);
     }
+
+    public CompanyCompetition fetchCompetitionInCompany(Integer companySeq) {
+        return commonService.fetchCompetitionInCompany(companySeq);
+    }
  }

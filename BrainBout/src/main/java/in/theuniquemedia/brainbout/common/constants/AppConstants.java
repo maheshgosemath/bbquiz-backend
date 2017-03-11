@@ -29,4 +29,5 @@ public interface AppConstants {
     public final String FETCH_COMPANY_COMPETITION_BY_SEQ="CompanyCompetition.fetchCompanyCompetitionDetailsBySeq";
     public final String FETCH_COMPANY_DOMAIN="CompanyDomain.fetchCompanyDomain";
     public final String FETCH_ALL_QUIZ="Quiz.fetchAllQuiz";
+    public final String FETCH_COMPETITION_BY_COMPANY="CompanyCompetition.fetchCompetitionByCompany";
 }

@@ -67,7 +67,7 @@ public class Participant {
         this.userProfile = userProfile;
     }
 
-    @Column(name = "NAME")
+    @Column(name = "FULL_NAME")
     public String getName() {
         return name;
     }
@@ -103,11 +103,11 @@ public class Participant {
         this.email = email;
     }
 
+    @Column(name = "PHONE_NO")
     public String getPhoneNo() {
         return phoneNo;
     }
 
-    @Column(name = "PHONE_NO")
     public void setPhoneNo(String phoneNo) {
         this.phoneNo = phoneNo;
     }

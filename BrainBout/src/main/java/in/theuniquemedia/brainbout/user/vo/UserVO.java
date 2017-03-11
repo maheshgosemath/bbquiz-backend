@@ -12,6 +12,9 @@ public class UserVO implements Serializable {
     public String lastName;
     private String phoneNo;
 
+    public UserVO() {
+    }
+
     public UserVO(String name, String email, String firstName, String lastName, String phoneNo) {
         this.name = name;
         this.email = email;

@@ -1,17 +1,19 @@
 package in.theuniquemedia.brainbout.user.service.impl;
 
 import in.theuniquemedia.brainbout.common.constants.AppConstants;
+import in.theuniquemedia.brainbout.common.constants.ResponseCode;
 import in.theuniquemedia.brainbout.common.delegate.CommonDelegate;
 import in.theuniquemedia.brainbout.common.domain.*;
 import in.theuniquemedia.brainbout.common.repository.IRepository;
 import in.theuniquemedia.brainbout.common.util.CommonUtil;
+import in.theuniquemedia.brainbout.common.vo.AuthenticationVO;
 import in.theuniquemedia.brainbout.quiz.vo.QuizOptionVO;
 import in.theuniquemedia.brainbout.user.service.IUser;
 import in.theuniquemedia.brainbout.user.vo.UserRegistrationRequestVO;
 import in.theuniquemedia.brainbout.user.vo.UserResultVO;
 import in.theuniquemedia.brainbout.user.vo.UserVO;
-import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -246,18 +248,90 @@ public class UserService implements IUser {
         userProfile.setCompnaySeq(userRegistrationRequestVO.getCompanySeq());
         userProfile.setUserId(userRegistrationRequestVO.getUserVO().getEmail());
 
-        ShaPasswordEncoder shaPasswordEncoder = new ShaPasswordEncoder(256);shaPasswordEncoder.setEncodeHashAsBase64(true);
+        ShaPasswordEncoder shaPasswordEncoder = new ShaPasswordEncoder(256);
+        shaPasswordEncoder.setEncodeHashAsBase64(true);
         String encodedPassword = shaPasswordEncoder.encodePassword(userRegistrationRequestVO.getPassword(), null);
         userProfile.setPassword(encodedPassword);
 
-        userProfile.setStatus(AppConstants.STATUS_INACTIVE);
+        userProfile.setStatus(AppConstants.STATUS_ACTIVE);
         return userProfileRepository.save(userProfile);
     }
 
 
+    @Override
+    @Transactional
     public void createUser(UserRegistrationRequestVO userRegistrationRequestVO) {
         Integer userProfileSeq = createUserProfile(userRegistrationRequestVO);
+        UserProfile userProfile = fetchUserProfileById(userProfileSeq);
+        if(userProfile != null) {
+            Company company = commonDelegate.fetchCompanyBySeq(userRegistrationRequestVO.getCompanySeq());
+            if(company != null) {
+                UserVO userVO = userRegistrationRequestVO.getUserVO();
+                String fullName = userVO.getFirstName() + " " + userVO.getLastName();
+                Participant participant = new Participant(company, userProfile, fullName, userVO.getFirstName(), userVO.getLastName(),
+                        userVO.getEmail(), userVO.getPhoneNo(), AppConstants.STATUS_ACTIVE);
+                participantRepository.save(participant);
+            }
+        }
+    }
 
+    @Override
+    @Transactional
+    public AuthenticationVO fetchAuthenticationInfo(String userId) {
+        AuthenticationVO authenticationVO = new AuthenticationVO();
+        Participant participant = fetchUserByEmail(userId);
+        if(participant != null) {
+            Integer companySeq = participant.getCompany().getCompanySeq();
+            authenticationVO.setName(participant.getName());
+            authenticationVO.setEmail(participant.getEmail());
+            authenticationVO.setCompanySeq(companySeq);
+
+            CompanyCompetition companyCompetition = commonDelegate.fetchCompetitionInCompany(companySeq);
+            if(companyCompetition != null) {
+                Integer competitionSeq = companyCompetition.getCompetition().getCompetitionSeq();
+                CompetitionParticipant competitionParticipant = getUserCompetitionData(userId, competitionSeq);
+                if (competitionParticipant == null) {
+                    addUserToCompetition(userId, competitionSeq);
+                } else {
+                    if(competitionParticipant.getSubmitted() == 'Y') {
+                        authenticationVO.setUserStatus(AppConstants.USER_STATUS_SUBMITTED);
+                    }
+                }
+                Integer userTimeLeft = fetchUserTime(companySeq, companyCompetition.getCompetition().getCompetitionSeq(), userId);
+                authenticationVO.setTimeLeft(userTimeLeft);
+                authenticationVO.setCompetitionSeq(companyCompetition.getCompetition().getCompetitionSeq());
+                authenticationVO.setCompetitionStatus(ResponseCode.COMPETITION_RUNNING);
+                Date startDate = companyCompetition.getStartTime();
+                Date endDate = companyCompetition.getEndTime();
+                Date now = new Date();
+
+                if(CommonUtil.compareDates(startDate, now) > 0) {
+                    authenticationVO.setCompetitionStatus(ResponseCode.COMPETITION_NOT_STARTED);
+                }
+                if(CommonUtil.compareDates(now, endDate) > 0) {
+                    authenticationVO.setCompetitionStatus(ResponseCode.COMPETITION_CLOSED);
+                }
+            }
+        }
+        return authenticationVO;
+    }
+
+    @Override
+    @Transactional
+    public boolean verifyUserEmail(String email, Integer companySeq) {
+        List<String> companyDomainList = commonDelegate.fetchCompanyDomainList(companySeq);
+        if(companyDomainList != null && companyDomainList.size() > 0) {
+            if(email != null) {
+                String emailDomain = email.split("@")[1];
+                for(String domain: companyDomainList) {
+                    if(emailDomain.equalsIgnoreCase(domain)) {
+                        return true;
+                    }
+                }
+            }
+
+        }
+        return false;
     }
 
 }

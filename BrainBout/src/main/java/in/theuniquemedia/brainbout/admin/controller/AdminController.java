@@ -33,6 +33,7 @@ public class AdminController {
             addResponseVO.setStatus("success");
             return new ResponseEntity<>(addResponseVO, HttpStatus.OK);
         } catch(Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(addResponseVO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -46,6 +47,7 @@ public class AdminController {
             addResponseVO.setStatus("success");
             return new ResponseEntity<>(addResponseVO, HttpStatus.OK);
         } catch(Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(addResponseVO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -59,6 +61,7 @@ public class AdminController {
             addResponseVO.setStatus("success");
             return new ResponseEntity<>(addResponseVO, HttpStatus.OK);
         } catch(Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(addResponseVO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -80,6 +83,7 @@ public class AdminController {
             addResponseVO.setStatus("success");
             return new ResponseEntity<>(addResponseVO, HttpStatus.OK);
         } catch(Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(addResponseVO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -91,6 +95,7 @@ public class AdminController {
             jsonObject.put("companyList", adminService.fetchCompanyList());
             return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
         } catch(Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>("", HttpStatus.OK);
         }
     }
@@ -102,6 +107,7 @@ public class AdminController {
             jsonObject.put("competitionList", adminService.fetchCompanyCompetitionList());
             return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
         } catch(Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>("", HttpStatus.OK);
         }
     }
@@ -113,6 +119,7 @@ public class AdminController {
             jsonObject.put("questionList", adminService.fetchQuestionList());
             return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
         } catch(Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>("", HttpStatus.OK);
         }
     }
@@ -124,6 +131,7 @@ public class AdminController {
             jsonObject.put("companydetails", adminService.fetchcompanyDetails());
             return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
         } catch(Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>("", HttpStatus.OK);
         }
     }
@@ -135,6 +143,7 @@ public class AdminController {
             jsonObject.put("genredetails", adminService.fetchGenreDetails());
             return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
         } catch(Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>("", HttpStatus.OK);
         }
     }
@@ -148,6 +157,7 @@ public class AdminController {
             addResponseVO.setStatus("success");
             return new ResponseEntity<>(addResponseVO, HttpStatus.OK);
         } catch(Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(addResponseVO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -159,6 +169,7 @@ public class AdminController {
             addCorporateVO = adminService.fetchQuizDetails(quizSeq);
             return new ResponseEntity<>(addCorporateVO, HttpStatus.OK);
         } catch(Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(addCorporateVO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -180,6 +191,7 @@ public class AdminController {
             addResponseVO.setStatus("success");
             return new ResponseEntity<>(addResponseVO, HttpStatus.OK);
         } catch(Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(addResponseVO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

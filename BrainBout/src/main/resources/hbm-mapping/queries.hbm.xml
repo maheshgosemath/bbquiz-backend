@@ -70,4 +70,9 @@
             from Quiz q where q.status = 'A'
         ]]>
     </query>
+    <query name="CompanyCompetition.fetchCompetitionByCompany">
+        <![CDATA[
+            from CompanyCompetition cc where cc.company.companySeq = :companySeq and cc.status = 'A'
+        ]]>
+    </query>
 </hibernate-mapping>

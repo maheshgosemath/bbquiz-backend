@@ -58,4 +58,7 @@ public interface ICommon {
 
     @Transactional
     List<CommonDetailsVO> fetchGenreDetails();
+
+    @Transactional
+    CompanyCompetition fetchCompetitionInCompany(Integer companySeq);
 }

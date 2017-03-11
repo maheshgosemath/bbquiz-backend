@@ -8,35 +8,28 @@
 	<http pattern="/resources/**" security="none" />
 	<http pattern="/test" security="none" />
 	<http pattern="/quizlist" security="none"/>
+	<http pattern="/companylist" security="none"/>
 	<http pattern="/quizinfo" security="none"/>
+	<http pattern="/signup" security="none"/>
 
 	<http use-expressions="true" auto-config="true">
-		<!-- Authentication policy -->
-		<form-login login-page="/login" default-target-url="/authsuccess"/>
-		<!--<logout delete-cookies="JSESSIONID" success-handler-ref="logoutSuccessHandler"/>-->
-		<session-management invalid-session-url="/login?error=timeout">
-			<concurrency-control max-sessions="1" expired-url="/login?error=multiple"/>
-		</session-management>
+		<intercept-url pattern="/**" access="hasAnyRole('ROLE_USER')"/>
+		<form-login authentication-success-handler-ref="mySuccessHandler"
+					authentication-failure-handler-ref="myFailureHandler"/>
 	</http>
 
-	<global-method-security secured-annotations="enabled" />
+
+	<beans:bean id="mySuccessHandler"
+				class="in.theuniquemedia.brainbout.common.authentication.AjaxAuthenticationSuccessHandler"/>
+	<beans:bean id="myFailureHandler" class=
+			"org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler"/>
+
 	<authentication-manager alias="authenticationManager">
 		<authentication-provider>
-			<password-encoder ref="passwordEncoder">
-			</password-encoder>
+			<password-encoder ref="passwordEncoder"/>
 			<jdbc-user-service data-source-ref="dataSource"
-							   users-by-username-query="select user_id, password, true from user_profile where user_id = ? and status='A'"
-							   authorities-by-username-query="select user_id,
-																(case 	when r.user_role_cd='EMP' then 'ROLE_EMPLOYEE'
-																		when r.user_role_cd='RECTR' then 'ROLE_RECRUITER'
-																		when r.user_role_cd='CANDT' then 'ROLE_CANDIDATE'
-																		when r.user_role_cd='ADMIN' then 'ROLE_ADMIN'
-																		when r.user_role_cd='OWNER' then 'ROLE_OWNER'
-																		when r.user_role_cd='REPT_USR' then 'ROLE_REPT_USR'
-																		when r.user_role_cd='VENDOR' then 'ROLE_VENDOR'
-																end)
-															from user_profile u, user_role r
-															where user_id = ? and u.user_role_seq=r.user_role_seq"
+          		  users-by-username-query="select user_id, password, true from user_profile where user_id = ? and status='A'"
+			   	  authorities-by-username-query="select user_id, 'ROLE_USER' from user_profile u where user_id = ?"
 			/>
 		</authentication-provider>
 	</authentication-manager>

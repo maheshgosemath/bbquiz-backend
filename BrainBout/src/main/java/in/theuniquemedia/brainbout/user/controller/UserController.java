@@ -2,13 +2,14 @@ package in.theuniquemedia.brainbout.user.controller;
 
 import in.theuniquemedia.brainbout.common.constants.AppConstants;
 import in.theuniquemedia.brainbout.common.delegate.CommonDelegate;
-import in.theuniquemedia.brainbout.common.domain.Competition;
 import in.theuniquemedia.brainbout.common.domain.CompetitionParticipant;
 import in.theuniquemedia.brainbout.common.domain.Participant;
+import in.theuniquemedia.brainbout.common.util.CommonUtil;
+import in.theuniquemedia.brainbout.common.vo.AuthenticationVO;
 import in.theuniquemedia.brainbout.quiz.vo.QuizVO;
 import in.theuniquemedia.brainbout.user.service.IUser;
 import in.theuniquemedia.brainbout.user.vo.*;
-import org.json.JSONObject;
+import net.sf.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.ModelMap;
@@ -18,7 +19,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -79,6 +79,7 @@ public class UserController {
             jsonObject.put("status", "success");
             return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
         } catch(Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>("", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -92,6 +93,7 @@ public class UserController {
                     new Date(), quizSubmissionVO.getQuizOptionVOList());
             return new ResponseEntity<>(userResultVO, HttpStatus.OK);
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(userResultVO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -115,6 +117,7 @@ public class UserController {
             quizResponseVO.setTimeLeft(timeLeft);
             return new ResponseEntity<>(quizResponseVO, HttpStatus.OK);
         } catch(Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(quizResponseVO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -132,6 +135,7 @@ public class UserController {
             }
             return new ResponseEntity<>(userResultVO, HttpStatus.OK);
         } catch(Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(userResultVO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -156,6 +160,39 @@ public class UserController {
             return new ModelAndView("socialapp");
         }
         return new ModelAndView("app");
+    }
+
+    @RequestMapping(value="signup")
+    public @ResponseBody ResponseEntity<String> createUserProfile(@RequestBody UserRegistrationRequestVO userRegistrationRequestVO) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            boolean validateDomain = userService.verifyUserEmail(userRegistrationRequestVO.getUserVO().getEmail(), userRegistrationRequestVO.getCompanySeq());
+            if(validateDomain) {
+                userService.createUser(userRegistrationRequestVO);
+                jsonObject.put("status", "success");
+            } else {
+                jsonObject.put("msg", "Invalid email domain");
+                jsonObject.put("status", "error");
+            }
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
+        } catch(Exception e) {
+            e.printStackTrace();
+            jsonObject.put("status", "error");
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @RequestMapping(value="userinfo")
+    public @ResponseBody ResponseEntity<AuthenticationVO> fetchUserInfo() {
+        AuthenticationVO authenticationVO = new AuthenticationVO();
+        try {
+            String userId = CommonUtil.getUserName();
+            authenticationVO = userService.fetchAuthenticationInfo(userId);
+            return new ResponseEntity<>(authenticationVO, HttpStatus.OK);
+        } catch(Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(authenticationVO, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 }

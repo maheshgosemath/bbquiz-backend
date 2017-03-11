@@ -2,7 +2,9 @@ package in.theuniquemedia.brainbout.user.service;
 
 import in.theuniquemedia.brainbout.common.domain.CompetitionParticipant;
 import in.theuniquemedia.brainbout.common.domain.Participant;
+import in.theuniquemedia.brainbout.common.vo.AuthenticationVO;
 import in.theuniquemedia.brainbout.quiz.vo.QuizOptionVO;
+import in.theuniquemedia.brainbout.user.vo.UserRegistrationRequestVO;
 import in.theuniquemedia.brainbout.user.vo.UserResultVO;
 import in.theuniquemedia.brainbout.user.vo.UserVO;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,4 +45,13 @@ public interface IUser {
 
     @Transactional
     CompetitionParticipant getUserStats(String token);
+
+    @Transactional
+    void createUser(UserRegistrationRequestVO userRegistrationRequestVO);
+
+    @Transactional
+    AuthenticationVO fetchAuthenticationInfo(String userId);
+
+    @Transactional
+    boolean verifyUserEmail(String email, Integer companySeq);
 }

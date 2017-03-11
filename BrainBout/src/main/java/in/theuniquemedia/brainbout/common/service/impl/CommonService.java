@@ -118,6 +118,7 @@ public class CommonService implements ICommon {
     }
 
     @Override
+
     @Transactional
     public List<String> fetchCompanyDomainList(Integer companySeq) {
         List<CompanyDomain> companyDomainList = fetchCompanyDomain(companySeq);
@@ -257,5 +258,18 @@ public class CommonService implements ICommon {
             }
         }
         return commonDetailsVOList;
+    }
+
+    @Override
+    @Transactional
+    public CompanyCompetition fetchCompetitionInCompany(Integer companySeq) {
+        HashMap<String, Object> queryParams = new HashMap<>();
+        queryParams.put("companySeq", companySeq);
+        List<CompanyCompetition> companyCompetitionList = companyCompetitionRepository.findByNamedQuery(
+                AppConstants.FETCH_COMPETITION_BY_COMPANY, queryParams);
+        if(companyCompetitionList != null && companyCompetitionList.size() > 0) {
+            return companyCompetitionList.get(0);
+        }
+        return null;
     }
 }

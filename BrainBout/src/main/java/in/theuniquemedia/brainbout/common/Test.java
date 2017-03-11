@@ -1,6 +1,7 @@
 package in.theuniquemedia.brainbout.common;
 
 import in.theuniquemedia.brainbout.common.util.CommonUtil;
+import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -10,10 +11,9 @@ import java.util.Date;
  */
 public class Test {
     public static void main(String[] args) {
-        Date now = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(2017, 01, 23, 0, 0, 0);
-        System.out.println(CommonUtil.compareDates(calendar.getTime(), now));
-        System.out.println(CommonUtil.getNoOfMinutesDiff(now, calendar.getTime()));
+        ShaPasswordEncoder shaPasswordEncoder = new ShaPasswordEncoder(256);
+        shaPasswordEncoder.setEncodeHashAsBase64(true);
+        String encodedPassword = shaPasswordEncoder.encodePassword("mahesh90", null);
+        System.out.println(encodedPassword);
     }
 }

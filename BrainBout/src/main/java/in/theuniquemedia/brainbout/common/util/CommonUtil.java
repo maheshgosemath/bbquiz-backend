@@ -1,6 +1,11 @@
 package in.theuniquemedia.brainbout.common.util;
 
 import org.apache.commons.lang.RandomStringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -16,6 +21,7 @@ import java.util.concurrent.TimeUnit;
  * Created by mahesh on 2/24/17.
  */
 public class CommonUtil {
+
     public static Integer compareDates(Date pDate1, Date pDate2) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
         try {
@@ -105,5 +111,15 @@ public class CommonUtil {
         return filePath;
     }
 
+    public static String getUserName() {
+        SecurityContext secCtx = SecurityContextHolder.getContext();
+        Authentication auth = secCtx.getAuthentication();
+
+        String userName = null;
+        if (auth != null) {
+            userName = auth.getName();
+        }
+        return userName;
+    }
 }
 
