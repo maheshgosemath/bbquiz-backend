@@ -156,6 +156,7 @@ public class QuizService implements IQuiz {
         QuizVO quizVO = new QuizVO();
         quizVO.setQuizSeq(quiz.getQuizSeq());
         quizVO.setQuizTitle(quiz.getQuizTitle());
+        quizVO.setQuizImg(quiz.getImgUrl());
 
         for(QuizOptions option:optionList) {
             OptionVO optionVO = new OptionVO();
@@ -181,7 +182,7 @@ public class QuizService implements IQuiz {
         saveQuizOptions(quizSeq, addQuestionVO.getQuizVO().getOptionList());
         if(addQuestionVO.getMultipartFile() != null) {
             CommonUtil.uploadFile(addQuestionVO.getMultipartFile(), "/home/brainbout/images/", AppConstants.QUIZ_PREFIX + String.valueOf(quizSeq));
-            quiz.setImgUrl(AppConstants.QUIZ_PREFIX + addQuestionVO.getMultipartFile().getOriginalFilename());
+            quiz.setImgUrl(AppConstants.QUIZ_PREFIX + String.valueOf(quizSeq) + addQuestionVO.getMultipartFile().getOriginalFilename());
         }
         quizRepository.merge(quiz);
     }
@@ -203,7 +204,7 @@ public class QuizService implements IQuiz {
             saveQuizOptions(quizSeq, addQuestionVO.getQuizVO().getOptionList());
             if (addQuestionVO.getMultipartFile() != null) {
                 CommonUtil.uploadFile(addQuestionVO.getMultipartFile(), "/home/brainbout/images/", AppConstants.QUIZ_PREFIX + String.valueOf(quizSeq));
-                quiz.setImgUrl(AppConstants.QUIZ_PREFIX + addQuestionVO.getMultipartFile().getOriginalFilename());
+                quiz.setImgUrl(AppConstants.QUIZ_PREFIX + String.valueOf(quizSeq) + addQuestionVO.getMultipartFile().getOriginalFilename());
             } else {
                 quiz.setImgUrl(null);
             }

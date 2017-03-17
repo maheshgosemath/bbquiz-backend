@@ -9,6 +9,7 @@ import java.util.List;
 public class QuizVO implements Serializable {
     private String QuizTitle;
     private Integer quizSeq;
+    private String quizImg;
     private List<OptionVO> optionList;
 
     public String getQuizTitle() {
@@ -25,6 +26,14 @@ public class QuizVO implements Serializable {
 
     public void setQuizSeq(Integer quizSeq) {
         this.quizSeq = quizSeq;
+    }
+
+    public String getQuizImg() {
+        return quizImg;
+    }
+
+    public void setQuizImg(String quizImg) {
+        this.quizImg = quizImg;
     }
 
     public List<OptionVO> getOptionList() {
