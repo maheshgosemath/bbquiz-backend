@@ -181,7 +181,7 @@ public class QuizService implements IQuiz {
         saveQuizOptions(quizSeq, addQuestionVO.getQuizVO().getOptionList());
         if(addQuestionVO.getMultipartFile() != null) {
             CommonUtil.uploadFile(addQuestionVO.getMultipartFile(), "/home/brainbout/images/", AppConstants.QUIZ_PREFIX + String.valueOf(quizSeq));
-            quiz.setImgUrl(addQuestionVO.getMultipartFile().getOriginalFilename());
+            quiz.setImgUrl(AppConstants.QUIZ_PREFIX + addQuestionVO.getMultipartFile().getOriginalFilename());
         }
         quizRepository.merge(quiz);
     }
@@ -203,7 +203,9 @@ public class QuizService implements IQuiz {
             saveQuizOptions(quizSeq, addQuestionVO.getQuizVO().getOptionList());
             if (addQuestionVO.getMultipartFile() != null) {
                 CommonUtil.uploadFile(addQuestionVO.getMultipartFile(), "/home/brainbout/images/", AppConstants.QUIZ_PREFIX + String.valueOf(quizSeq));
-                quiz.setImgUrl(addQuestionVO.getMultipartFile().getOriginalFilename());
+                quiz.setImgUrl(AppConstants.QUIZ_PREFIX + addQuestionVO.getMultipartFile().getOriginalFilename());
+            } else {
+                quiz.setImgUrl(null);
             }
             quizRepository.merge(quiz);
         }

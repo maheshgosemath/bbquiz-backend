@@ -30,4 +30,10 @@ public interface AppConstants {
     public final String FETCH_COMPANY_DOMAIN="CompanyDomain.fetchCompanyDomain";
     public final String FETCH_ALL_QUIZ="Quiz.fetchAllQuiz";
     public final String FETCH_COMPETITION_BY_COMPANY="CompanyCompetition.fetchCompetitionByCompany";
+    public final String FETCH_COMPETITION_BY_TOKEN="CompanyCompetition.fetchCompetitionByToken";
+    public final String FETCH_COMPETITION_COUNT="CompetitionParticipant.fetchCompetitionParticipantCount";
+    public final String FETCH_COMPANY_TOP_PARTICIPANTS="CompetitionParticipant.fetchTopParticipants";
+    public final String FETCH_COMPETITION_TOP_PARTICIPANTS="CompetitionParticipant.fetchTopCompetitionParticipants";
+    public final String FETCH_USER_PROFILE_DETAIL_BY_SEQ="UserProfileDetail.fetchUserProfileDetailBySeq";
+    public final String FETCH_USER_TOKEN="UserToken.fetchUserToken";
 }

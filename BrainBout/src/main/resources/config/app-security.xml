@@ -11,6 +11,20 @@
 	<http pattern="/companylist" security="none"/>
 	<http pattern="/quizinfo" security="none"/>
 	<http pattern="/signup" security="none"/>
+	<http pattern="/createcompany" security="none"/>
+	<http pattern="/createcompetition" security="none"/>
+	<http pattern="/createcompanycompetition" security="none"/>
+	<http pattern="/createquestion" security="none"/>
+	<http pattern="/competitionlist" security="none"/>
+	<http pattern="/questionlist" security="none"/>
+	<http pattern="/companydetails" security="none"/>
+	<http pattern="/competitiondetails" security="none"/>
+	<http pattern="/genredetails" security="none"/>
+	<http pattern="/updatecompany" security="none"/>
+	<http pattern="/questioninfo" security="none"/>
+	<http pattern="/updatequestion" security="none"/>
+	<http pattern="/validateuser" security="none"/>
+	<http pattern="/emailverify" security="none"/>
 
 	<http use-expressions="true" auto-config="true">
 		<intercept-url pattern="/**" access="hasAnyRole('ROLE_USER')"/>

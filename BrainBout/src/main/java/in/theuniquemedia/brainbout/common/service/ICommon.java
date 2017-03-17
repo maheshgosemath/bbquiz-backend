@@ -61,4 +61,10 @@ public interface ICommon {
 
     @Transactional
     CompanyCompetition fetchCompetitionInCompany(Integer companySeq);
+
+    @Transactional
+    AddCompetitionVO fetchCompetitionDetails(String token);
+
+    @Transactional
+    List<CompetitionVO> fetchCompetitionList(Integer companySeq);
 }

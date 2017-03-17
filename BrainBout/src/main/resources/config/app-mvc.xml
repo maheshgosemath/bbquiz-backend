@@ -17,6 +17,43 @@
 		</property>
 	</bean>
 
+	<bean id="propertyConfigurer" class="in.theuniquemedia.brainbout.common.util.PropertiesUtil">
+		<property name="locations">
+			<list>
+				<value>classpath:properties/application.properties</value>
+			</list>
+		</property>
+		<property name="ignoreResourceNotFound" value="true"/>
+		<property name="ignoreUnresolvablePlaceholders" value="true"/>
+		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE"/>
+	</bean>
+
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="${smtp.host}"/>
+		<property name="port" value="${smtp.port}"/>
+		<property name="username" value="${smtp.username}"/>
+		<property name="password" value="${smtp.password}"/>
+		<property name="javaMailProperties">
+			<props>
+				<prop key="mail.smtp.auth">true</prop>
+				<prop key="mail.smtp.starttls.enable">true</prop>
+				<prop key="mail.smtp.localhost">127.0.0.1</prop>
+				<!-- For use with Amazon SES locally -->
+				<prop key="mail.smtps.auth">true</prop>
+    			<prop key="mail.smtp.ssl.enable">true</prop>
+   	 			<prop key="mail.transport.protocol">smtps</prop>
+				<!-- For debugging SMTP -->
+				<!--<prop key="mail.debug">true</prop>-->
+			</props>
+		</property>
+	</bean>
+
+	<bean id="velocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
+		<property name="velocityProperties">
+			<value>resource.loader=class
+				class.resource.loader.class=org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader</value>
+		</property>
+	</bean>
 
 	<bean id="handlerMapping" class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping"/>
 	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter"/>

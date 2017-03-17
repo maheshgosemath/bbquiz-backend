@@ -8,6 +8,7 @@ import java.io.Serializable;
 public class CommonDetailsVO implements Serializable {
     private Integer seq;
     private String name;
+    private Long score;
 
     public Integer getSeq() {
         return seq;
@@ -23,5 +24,13 @@ public class CommonDetailsVO implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Long getScore() {
+        return score;
+    }
+
+    public void setScore(Long score) {
+        this.score = score;
     }
 }

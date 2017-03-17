@@ -202,4 +202,10 @@ public class AdminService implements IAdmin {
         commonDelegate.updateQuestion(addQuestionVO);
     }
 
+    @Override
+    @Transactional
+    public AddCompetitionVO fetchCompetiotionDetails(String token) {
+        return commonDelegate.fetchCompetitionDetails(token);
+    }
+
 }

@@ -5,24 +5,26 @@ import in.theuniquemedia.brainbout.common.constants.ResponseCode;
 import in.theuniquemedia.brainbout.common.delegate.CommonDelegate;
 import in.theuniquemedia.brainbout.common.domain.*;
 import in.theuniquemedia.brainbout.common.repository.IRepository;
+import in.theuniquemedia.brainbout.common.repository.impl.RepositoryImpl;
+import in.theuniquemedia.brainbout.common.service.IEmail;
 import in.theuniquemedia.brainbout.common.util.CommonUtil;
-import in.theuniquemedia.brainbout.common.vo.AuthenticationVO;
+import in.theuniquemedia.brainbout.common.util.PropertiesUtil;
+import in.theuniquemedia.brainbout.common.vo.*;
 import in.theuniquemedia.brainbout.quiz.vo.QuizOptionVO;
 import in.theuniquemedia.brainbout.user.service.IUser;
 import in.theuniquemedia.brainbout.user.vo.UserRegistrationRequestVO;
 import in.theuniquemedia.brainbout.user.vo.UserResultVO;
 import in.theuniquemedia.brainbout.user.vo.UserVO;
+import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.velocity.VelocityEngineUtils;
 
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by mahesh on 2/22/17.
@@ -48,6 +50,11 @@ public class UserService implements IUser {
     @Autowired
     IRepository<UserToken, Integer> userTokenRepository;
 
+    @Autowired
+    IEmail emailService;
+
+    @Autowired
+    private VelocityEngine velocityEngine;
 
     @Override
     @Transactional
@@ -106,6 +113,7 @@ public class UserService implements IUser {
         competitionParticipant.setParticipant(participant);
         competitionParticipant.setCompanySeq(participant.getCompany().getCompanySeq());
         competitionParticipant.setCompetition(competition);
+        competitionParticipant.setStartTime(new Date());
         competitionParticipant.setTimeTaken(0);
         competitionParticipant.setScore(0);
         competitionParticipant.setStatus(AppConstants.STATUS_ACTIVE);
@@ -119,6 +127,8 @@ public class UserService implements IUser {
         if(competitionParticipant != null) {
             competitionParticipant.setStartTime(new Date());
             competitionParticipantRepository.merge(competitionParticipant);
+        } else {
+            addUserToCompetition(email, competitionSeq);
         }
     }
 
@@ -271,8 +281,39 @@ public class UserService implements IUser {
                 Participant participant = new Participant(company, userProfile, fullName, userVO.getFirstName(), userVO.getLastName(),
                         userVO.getEmail(), userVO.getPhoneNo(), AppConstants.STATUS_ACTIVE);
                 participantRepository.save(participant);
+
+                createUserProfileDetails(userProfileSeq);
+                createUserTokenAndSendMail(userProfileSeq, userVO);
             }
         }
+    }
+
+    @Transactional
+    private void createUserTokenAndSendMail(Integer userProfileSeq, UserVO userVO) {
+        String userTokenString = CommonUtil.getRandomString();
+        UserToken userToken = new UserToken();
+        userToken.setUserProfile(fetchUserProfileById(userProfileSeq));
+        userToken.setTokenType("REGISTRATION");
+        userToken.setUserToken(userTokenString);
+        userToken.setStatus(AppConstants.STATUS_ACTIVE);
+        userTokenRepository.save(userToken);
+
+        Map<String, Object> model = new HashMap<>();
+        model.put("username", userVO.getFirstName());
+        model.put("link", PropertiesUtil.getPropValue("app.verification.url") + userTokenString);
+        String message = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, "template/mails/registration.vm", model);
+        EmailVO emailVO = new EmailVO(PropertiesUtil.getPropValue("email.sender"), userVO.getEmail(), message,
+                PropertiesUtil.getPropValue("email.sender.label"), userVO.getFirstName() + " " + userVO.getLastName(), "Welcome to brainbout");
+        emailService.sendMail(emailVO);
+    }
+
+    @Transactional
+    private void createUserProfileDetails(Integer userProfileSeq) {
+        UserProfileDetail userProfileDetail = new UserProfileDetail();
+        userProfileDetail.setUserProfile(fetchUserProfileById(userProfileSeq));
+        userProfileDetail.setUserRegistrationStatus("PENDING");
+        userProfileDetail.setStatus(AppConstants.STATUS_ACTIVE);
+        userProfileDetailRepository.save(userProfileDetail);
     }
 
     @Override
@@ -285,35 +326,67 @@ public class UserService implements IUser {
             authenticationVO.setName(participant.getName());
             authenticationVO.setEmail(participant.getEmail());
             authenticationVO.setCompanySeq(companySeq);
-
-            CompanyCompetition companyCompetition = commonDelegate.fetchCompetitionInCompany(companySeq);
-            if(companyCompetition != null) {
-                Integer competitionSeq = companyCompetition.getCompetition().getCompetitionSeq();
-                CompetitionParticipant competitionParticipant = getUserCompetitionData(userId, competitionSeq);
-                if (competitionParticipant == null) {
-                    addUserToCompetition(userId, competitionSeq);
-                } else {
-                    if(competitionParticipant.getSubmitted() == 'Y') {
-                        authenticationVO.setUserStatus(AppConstants.USER_STATUS_SUBMITTED);
-                    }
-                }
-                Integer userTimeLeft = fetchUserTime(companySeq, companyCompetition.getCompetition().getCompetitionSeq(), userId);
-                authenticationVO.setTimeLeft(userTimeLeft);
-                authenticationVO.setCompetitionSeq(companyCompetition.getCompetition().getCompetitionSeq());
-                authenticationVO.setCompetitionStatus(ResponseCode.COMPETITION_RUNNING);
-                Date startDate = companyCompetition.getStartTime();
-                Date endDate = companyCompetition.getEndTime();
-                Date now = new Date();
-
-                if(CommonUtil.compareDates(startDate, now) > 0) {
-                    authenticationVO.setCompetitionStatus(ResponseCode.COMPETITION_NOT_STARTED);
-                }
-                if(CommonUtil.compareDates(now, endDate) > 0) {
-                    authenticationVO.setCompetitionStatus(ResponseCode.COMPETITION_CLOSED);
-                }
-            }
         }
         return authenticationVO;
+    }
+
+    @Override
+    @Transactional
+    public String verifyToken(String token) {
+        HashMap<String, Object> queryParams = new HashMap<>();
+        queryParams.put("token", token);
+        List<UserToken> userTokenList = userTokenRepository.findByNamedQuery(AppConstants.FETCH_USER_TOKEN, queryParams);
+        if(userTokenList != null && userTokenList.size() > 0) {
+            UserToken userToken = userTokenList.get(0);
+            if(userToken.getStatus() == AppConstants.STATUS_INACTIVE) {
+                return ResponseCode.EMAIL_ALREADY_VERIFIED;
+            } else {
+                verifyUserEmail(userToken.getUserProfile().getUserProfileSeq());
+                userToken.setStatus(AppConstants.STATUS_INACTIVE);
+                userTokenRepository.merge(userToken);
+            }
+        } else {
+            return ResponseCode.VERIFICATION_TOKEN_NOT_FOUND;
+        }
+        return ResponseCode.EMAIL_VERIFICATION_SUCCESSFUL;
+    }
+
+    @Transactional
+    public void verifyUserEmail(Integer userProfileSeq) {
+        UserProfileDetail userProfileDetail = fetchUserProfileDetail(userProfileSeq);
+        if(userProfileDetail != null) {
+            userProfileDetail.setUserRegistrationStatus("VERIFIED");
+            userProfileDetailRepository.merge(userProfileDetail);
+        }
+    }
+
+    @Transactional
+    public UserProfileDetail fetchUserProfileDetail(Integer userProfileSeq) {
+        HashMap<String, Object> queryParams = new HashMap<>();
+        queryParams.put("userProfileSeq", userProfileSeq);
+        List<UserProfileDetail> userProfileDetailList = userProfileDetailRepository.findByNamedQuery(
+                AppConstants.FETCH_USER_PROFILE_DETAIL_BY_SEQ, queryParams);
+        if(userProfileDetailList != null && userProfileDetailList.size() > 0) {
+            return userProfileDetailList.get(0);
+        }
+        return null;
+    }
+
+    @Override
+    @Transactional
+    public String isUserProfileVerified(String email) {
+        Participant participant = fetchUserByEmail(email);
+        if(participant != null) {
+            UserProfileDetail userProfileDetail = fetchUserProfileDetail(participant.getUserProfile().getUserProfileSeq());
+            if(userProfileDetail != null) {
+                if(!userProfileDetail.getUserRegistrationStatus().equals("VERIFIED")) {
+                    return ResponseCode.LOGIN_VERIFICATION_PENDING;
+                }
+            }
+        } else {
+            return ResponseCode.LOGIN_USER_NOT_EXISTS;
+        }
+        return ResponseCode.VERIFIED_USER;
     }
 
     @Override
@@ -334,4 +407,66 @@ public class UserService implements IUser {
         return false;
     }
 
+    @Override
+    @Transactional
+    public Long fetchCompetitionParticipantCount(Integer companySeq, Integer competitionSeq) {
+        HashMap<String, Object> queryParams = new HashMap<>();
+        queryParams.put("companySeq", companySeq);
+        queryParams.put("competitionSeq", competitionSeq);
+        Long count = competitionParticipantRepository.findCountByNamedQuery(AppConstants.FETCH_COMPETITION_COUNT, queryParams);
+        if(count != null) {
+            return count;
+        }
+        return 0L;
+    }
+
+    @Override
+    @Transactional
+    public List<DashboardVO> fetchUserDashboard(Integer companySeq, String email) {
+        List<DashboardVO> dashboardVOList = new ArrayList();
+        List<CompetitionVO> competitionVOList = commonDelegate.fetchActiveCompetitionList(companySeq);
+        if(competitionVOList != null && competitionVOList.size() > 0) {
+            for(CompetitionVO competitionVO: competitionVOList) {
+                DashboardVO dashboardVO = new DashboardVO();
+                competitionVO.setParticipants(fetchCompetitionParticipantCount(companySeq,
+                        competitionVO.getCompetitionSeq()).intValue());
+                dashboardVO.setCompetitionVO(competitionVO);
+                CompetitionParticipant competitionParticipant = getUserCompetitionData(email, competitionVO.getCompetitionSeq());
+                if(competitionParticipant != null) {
+                    if(competitionParticipant.getSubmitted() == 'Y') {
+                        dashboardVO.setUserStatus("submitted");
+                    } else {
+                        dashboardVO.setUserStatus("PARTICIPATED");
+                        dashboardVO.setUserTimeLeft(fetchUserTime(companySeq, competitionVO.getCompetitionSeq(), email));
+                    }
+                } else {
+                    dashboardVO.setUserStatus("NP");
+                    dashboardVO.setUserTimeLeft(competitionVO.getTotalTime());
+                }
+                dashboardVOList.add(dashboardVO);
+            }
+        }
+        return dashboardVOList;
+    }
+
+    @Override
+    @Transactional
+    public List<CommonDetailsVO> fetchCompanyTopPlayers(Integer companySeq) {
+        HashMap<String, Object> queryParams = new HashMap<>();
+        queryParams.put("companySeq", companySeq);
+        List<CommonDetailsVO> commonDetailsVOList = (List<CommonDetailsVO>) competitionParticipantRepository.findVOByNamedQuery(CommonDetailsVO.class,
+                AppConstants.FETCH_COMPANY_TOP_PARTICIPANTS, queryParams);
+        return commonDetailsVOList;
+    }
+
+    @Override
+    @Transactional
+    public List<CommonDetailsVO> fetchCompetitionTopPlayers(Integer companySeq, Integer competitionSeq) {
+        HashMap<String, Object> queryParams = new HashMap<>();
+        queryParams.put("companySeq", companySeq);
+        queryParams.put("competitionSeq", competitionSeq);
+        List<CommonDetailsVO> commonDetailsVOList = (List<CommonDetailsVO>) competitionParticipantRepository.findVOByNamedQuery(CommonDetailsVO.class,
+                AppConstants.FETCH_COMPETITION_TOP_PARTICIPANTS, queryParams);
+        return commonDetailsVOList;
+    }
 }

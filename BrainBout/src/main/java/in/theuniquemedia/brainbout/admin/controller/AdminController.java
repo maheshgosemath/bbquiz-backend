@@ -136,6 +136,18 @@ public class AdminController {
         }
     }
 
+    @RequestMapping(value="competitiondetails")
+    public @ResponseBody ResponseEntity<String> fetchCompetitionDetails(@RequestParam String token) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("competitiondetails", adminService.fetchCompetiotionDetails(token));
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
+        } catch(Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>("", HttpStatus.OK);
+        }
+    }
+
     @RequestMapping(value="genredetails")
     public @ResponseBody ResponseEntity<String> fetchGenreDetails() {
         JSONObject jsonObject = new JSONObject();

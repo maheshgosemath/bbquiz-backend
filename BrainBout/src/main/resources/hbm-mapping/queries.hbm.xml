@@ -75,4 +75,42 @@
             from CompanyCompetition cc where cc.company.companySeq = :companySeq and cc.status = 'A'
         ]]>
     </query>
+    <query name="CompanyCompetition.fetchCompetitionByToken">
+        <![CDATA[
+            from CompanyCompetition cc where cc.refCode = :refCode and cc.status = 'A'
+        ]]>
+    </query>
+    <query name="CompetitionParticipant.fetchCompetitionParticipantCount">
+        <![CDATA[
+            select count(*) from CompetitionParticipant cp where  cp.status = 'A' and
+            cp.competition.competitionSeq = :competitionSeq and cp.companySeq = :companySeq
+        ]]>
+    </query>
+    <query name="CompetitionParticipant.fetchTopParticipants">
+        <![CDATA[
+            select sum(cp.score) as score, cp.participant.name as name from CompetitionParticipant cp where cp.participant.status = 'A'
+            and cp.status = 'A' and cp.submitted = 'Y'
+            and cp.companySeq = :companySeq
+            group by cp.participant.participantSeq
+            order by score desc
+        ]]>
+    </query>
+    <query name="CompetitionParticipant.fetchTopCompetitionParticipants">
+        <![CDATA[
+            select cp.score as seq, cp.participant.name as name from CompetitionParticipant cp where cp.participant.status = 'A'
+            and cp.status = 'A' and cp.submitted = 'Y'
+            and cp.competition.competitionSeq = :competitionSeq and cp.companySeq = :companySeq
+            order by cp.score desc, cp.timeTaken desc, cp.startTime asc
+        ]]>
+    </query>
+    <query name="UserToken.fetchUserToken">
+        <![CDATA[
+            from UserToken ut where ut.userToken = :token
+        ]]>
+    </query>
+    <query name="UserProfileDetail.fetchUserProfileDetailBySeq">
+        <![CDATA[
+            from UserProfileDetail up where up.userProfile.userProfileSeq = :userProfileSeq
+        ]]>
+    </query>
 </hibernate-mapping>

@@ -8,10 +8,7 @@ import in.theuniquemedia.brainbout.common.domain.*;
 import in.theuniquemedia.brainbout.common.repository.IRepository;
 import in.theuniquemedia.brainbout.common.service.ICommon;
 import in.theuniquemedia.brainbout.common.util.CommonUtil;
-import in.theuniquemedia.brainbout.common.vo.CommonDetailsVO;
-import in.theuniquemedia.brainbout.common.vo.CompanyCompetitionVO;
-import in.theuniquemedia.brainbout.common.vo.CompanyVO;
-import in.theuniquemedia.brainbout.common.vo.CompetitionVO;
+import in.theuniquemedia.brainbout.common.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -272,4 +269,59 @@ public class CommonService implements ICommon {
         }
         return null;
     }
+
+    @Transactional
+    public CompanyCompetition fetchCompetitionByToken(String token) {
+        HashMap<String, Object> queryParams = new HashMap<>();
+        queryParams.put("refCode", token);
+        List<CompanyCompetition> companyCompetitionList = companyCompetitionRepository.findByNamedQuery(
+                AppConstants.FETCH_COMPETITION_BY_TOKEN, queryParams);
+        if(companyCompetitionList != null && companyCompetitionList.size() > 0) {
+            return companyCompetitionList.get(0);
+        }
+        return null;
+    }
+
+    @Override
+    @Transactional
+    public AddCompetitionVO fetchCompetitionDetails(String token) {
+        AddCompetitionVO addCompetitionVO = new AddCompetitionVO();
+        CompanyCompetition companyCompetition = fetchCompetitionByToken(token);
+        if(companyCompetition != null) {
+            addCompetitionVO.setCompanySeq(companyCompetition.getCompany().getCompanySeq());
+            addCompetitionVO.setCompanyName(companyCompetition.getCompany().getCompanyName());
+            addCompetitionVO.setCompetitionName(companyCompetition.getCompetition().getCompetitionName());
+            addCompetitionVO.setCompetitionSeq(companyCompetition.getCompetition().getCompetitionSeq());
+            addCompetitionVO.setStartDate(CommonUtil.convertUtilDateToString(companyCompetition.getStartTime(), "yyyy-MM-dd"));
+            addCompetitionVO.setEndDate(CommonUtil.convertUtilDateToString(companyCompetition.getEndTime(), "yyyy-MM-dd"));
+            addCompetitionVO.setTimeLimit(Integer.parseInt(companyCompetition.getTimeLimit()));
+        }
+        return addCompetitionVO;
+    }
+
+    @Transactional
+    public List<CompanyCompetition> fetchActiveCompetitionList(Integer companySeq) {
+        HashMap<String, Object> queryParams = new HashMap<>();
+        queryParams.put("companySeq", companySeq);
+        return companyCompetitionRepository.findByNamedQuery(AppConstants.FETCH_COMPETITION_BY_COMPANY, queryParams);
+    }
+
+    @Override
+    @Transactional
+    public List<CompetitionVO> fetchCompetitionList(Integer companySeq) {
+        List<CompetitionVO> competitionVOList = new ArrayList<>();
+        List<CompanyCompetition> companyCompetitionList = fetchActiveCompetitionList(companySeq);
+        if(companyCompetitionList != null && companyCompetitionList.size() > 0) {
+            for(CompanyCompetition companyCompetition: companyCompetitionList) {
+                CompetitionVO competitionVO = new CompetitionVO();
+                competitionVO.setCompetitionSeq(companyCompetition.getCompetition().getCompetitionSeq());
+                competitionVO.setCompetitionName(companyCompetition.getCompetition().getCompetitionName());
+                competitionVO.setTimeLeft((CommonUtil.getNoOfSecondsDiff(companyCompetition.getEndTime(), new Date())).intValue());
+                competitionVO.setTotalTime(Integer.parseInt(companyCompetition.getTimeLimit()));
+                competitionVOList.add(competitionVO);
+            }
+        }
+        return competitionVOList;
+    }
+
 }

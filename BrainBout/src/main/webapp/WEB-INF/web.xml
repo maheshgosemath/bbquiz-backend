@@ -36,6 +36,16 @@
         <url-pattern>/</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>imageServlet</servlet-name>
+        <servlet-class>in.theuniquemedia.brainbout.common.util.ImageUtil</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>imageServlet</servlet-name>
+        <url-pattern>/quizimages/*</url-pattern>
+    </servlet-mapping>
+
     <filter>
         <filter-name>characterEncodingFilter</filter-name>
         <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>

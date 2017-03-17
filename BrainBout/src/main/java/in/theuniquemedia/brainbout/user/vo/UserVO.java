@@ -6,6 +6,7 @@ import java.io.Serializable;
  * Created by mahesh on 2/22/17.
  */
 public class UserVO implements Serializable {
+    Integer companySeq;
     public String name;
     public String email;
     public String firstName;
@@ -26,6 +27,14 @@ public class UserVO implements Serializable {
     public UserVO(String name, String email) {
         this.name = name;
         this.email = email;
+    }
+
+    public Integer getCompanySeq() {
+        return companySeq;
+    }
+
+    public void setCompanySeq(Integer companySeq) {
+        this.companySeq = companySeq;
     }
 
     public String getName() {

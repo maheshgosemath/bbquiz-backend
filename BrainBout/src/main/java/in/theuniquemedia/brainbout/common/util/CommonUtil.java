@@ -51,6 +51,21 @@ public class CommonUtil {
         }
     }
 
+    public static Long getNoOfSecondsDiff(Date pDate1, Date pDate2) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
+
+        try {
+            Date date1 = sdf.parse(sdf.format(pDate1));
+            Date date2 = sdf.parse(sdf.format(pDate2));
+            long diff = date1.getTime() - date2.getTime();
+            return TimeUnit.SECONDS.convert(diff, TimeUnit.MILLISECONDS);
+
+        } catch (ParseException pe) {
+            /*pe.printStackTrace();*/
+            return null;
+        }
+    }
+
     public static Date convertStringToDate(String utilDate, String format) {
 
         Date newDate = null;

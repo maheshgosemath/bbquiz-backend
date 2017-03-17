@@ -6,6 +6,7 @@ import in.theuniquemedia.brainbout.common.domain.CompetitionParticipant;
 import in.theuniquemedia.brainbout.common.domain.Participant;
 import in.theuniquemedia.brainbout.common.util.CommonUtil;
 import in.theuniquemedia.brainbout.common.vo.AuthenticationVO;
+import in.theuniquemedia.brainbout.common.vo.DashboardVO;
 import in.theuniquemedia.brainbout.quiz.vo.QuizVO;
 import in.theuniquemedia.brainbout.user.service.IUser;
 import in.theuniquemedia.brainbout.user.vo.*;
@@ -192,6 +193,68 @@ public class UserController {
         } catch(Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(authenticationVO, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @RequestMapping(value="dashboard")
+    public @ResponseBody ResponseEntity<String> fetchUserInfo(@RequestBody UserVO userVO) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            String userId = CommonUtil.getUserName();
+            userService.fetchUserDashboard(userVO.getCompanySeq(), userId);
+            jsonObject.put("dashboard", userService.fetchUserDashboard(userVO.getCompanySeq(), userId));
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
+        } catch(Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @RequestMapping(value="companyleaderboard")
+    public @ResponseBody ResponseEntity<String> fetchCompanyLeaderBoard(Integer companySeq) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("leaderboard", userService.fetchCompanyTopPlayers(companySeq));
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
+        } catch(Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @RequestMapping(value="competitionleaderboard")
+    public @ResponseBody ResponseEntity<String> fetchCompetitionLeaderBoard(Integer companySeq, Integer competitionSeq) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("leaderboard", userService.fetchCompetitionTopPlayers(companySeq, competitionSeq));
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
+        } catch(Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @RequestMapping(value="validateuser", method = RequestMethod.GET)
+    public @ResponseBody ResponseEntity<String> validateUserAccount(@RequestParam String email) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("status", userService.isUserProfileVerified(email));
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
+        } catch(Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @RequestMapping(value="emailverify", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<String> verifyUserAccount(@RequestBody UserTokenVO userTokenVO) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("status", userService.verifyToken(userTokenVO.getToken()));
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
+        } catch(Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

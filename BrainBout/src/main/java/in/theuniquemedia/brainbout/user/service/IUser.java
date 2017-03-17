@@ -3,6 +3,8 @@ package in.theuniquemedia.brainbout.user.service;
 import in.theuniquemedia.brainbout.common.domain.CompetitionParticipant;
 import in.theuniquemedia.brainbout.common.domain.Participant;
 import in.theuniquemedia.brainbout.common.vo.AuthenticationVO;
+import in.theuniquemedia.brainbout.common.vo.CommonDetailsVO;
+import in.theuniquemedia.brainbout.common.vo.DashboardVO;
 import in.theuniquemedia.brainbout.quiz.vo.QuizOptionVO;
 import in.theuniquemedia.brainbout.user.vo.UserRegistrationRequestVO;
 import in.theuniquemedia.brainbout.user.vo.UserResultVO;
@@ -53,5 +55,23 @@ public interface IUser {
     AuthenticationVO fetchAuthenticationInfo(String userId);
 
     @Transactional
+    String verifyToken(String token);
+
+    @Transactional
+    String isUserProfileVerified(String email);
+
+    @Transactional
     boolean verifyUserEmail(String email, Integer companySeq);
+
+    @Transactional
+    Long fetchCompetitionParticipantCount(Integer companySeq, Integer competitionSeq);
+
+    @Transactional
+    List<DashboardVO> fetchUserDashboard(Integer companySeq, String email);
+
+    @Transactional
+    List<CommonDetailsVO> fetchCompanyTopPlayers(Integer companySeq);
+
+    @Transactional
+    List<CommonDetailsVO> fetchCompetitionTopPlayers(Integer companySeq, Integer competitionSeq);
 }

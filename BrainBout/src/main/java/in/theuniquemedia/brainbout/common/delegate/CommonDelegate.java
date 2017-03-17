@@ -7,8 +7,10 @@ import in.theuniquemedia.brainbout.admin.vo.QuestionVO;
 import in.theuniquemedia.brainbout.common.domain.*;
 import in.theuniquemedia.brainbout.common.service.ICommon;
 import in.theuniquemedia.brainbout.common.vo.CommonDetailsVO;
+import in.theuniquemedia.brainbout.common.vo.CompetitionVO;
 import in.theuniquemedia.brainbout.quiz.service.IQuiz;
 import in.theuniquemedia.brainbout.quiz.vo.QuizVO;
+import in.theuniquemedia.brainbout.user.service.IUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -27,6 +29,9 @@ public class CommonDelegate {
 
     @Autowired
     IQuiz quizService;
+
+    @Autowired
+    IUser userService;
 
     public Genre fetchGenreBySeq(Integer genreSeq) {
         return commonService.fetchGenreBySeq(genreSeq);
@@ -102,5 +107,13 @@ public class CommonDelegate {
 
     public CompanyCompetition fetchCompetitionInCompany(Integer companySeq) {
         return commonService.fetchCompetitionInCompany(companySeq);
+    }
+
+    public AddCompetitionVO fetchCompetitionDetails(String token) {
+        return commonService.fetchCompetitionDetails(token);
+    }
+
+    public List<CompetitionVO> fetchActiveCompetitionList(Integer companySeq) {
+        return commonService.fetchCompetitionList(companySeq);
     }
  }

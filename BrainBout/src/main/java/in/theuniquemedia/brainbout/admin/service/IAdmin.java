@@ -43,4 +43,7 @@ public interface IAdmin {
 
     @Transactional
     void updateQuestion(AddQuestionVO addQuestionVO);
+
+    @Transactional
+    AddCompetitionVO fetchCompetiotionDetails(String token);
 }

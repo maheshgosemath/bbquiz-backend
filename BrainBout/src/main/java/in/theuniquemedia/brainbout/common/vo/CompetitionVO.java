@@ -10,6 +10,9 @@ public class CompetitionVO implements Serializable {
     private String competitionName;
     private Integer noOfQuestions;
     private char status;
+    private Integer timeLeft;
+    private Integer totalTime;
+    private Integer participants;
 
     public Integer getCompetitionSeq() {
         return competitionSeq;
@@ -41,5 +44,29 @@ public class CompetitionVO implements Serializable {
 
     public void setStatus(char status) {
         this.status = status;
+    }
+
+    public Integer getTimeLeft() {
+        return timeLeft;
+    }
+
+    public void setTimeLeft(Integer timeLeft) {
+        this.timeLeft = timeLeft;
+    }
+
+    public Integer getTotalTime() {
+        return totalTime;
+    }
+
+    public void setTotalTime(Integer totalTime) {
+        this.totalTime = totalTime;
+    }
+
+    public Integer getParticipants() {
+        return participants;
+    }
+
+    public void setParticipants(Integer participants) {
+        this.participants = participants;
     }
 }
