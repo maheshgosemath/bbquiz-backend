@@ -3,10 +3,7 @@ package in.theuniquemedia.brainbout.common.service;
 import in.theuniquemedia.brainbout.admin.vo.AddCompetitionVO;
 import in.theuniquemedia.brainbout.admin.vo.CorporateVO;
 import in.theuniquemedia.brainbout.common.domain.*;
-import in.theuniquemedia.brainbout.common.vo.CommonDetailsVO;
-import in.theuniquemedia.brainbout.common.vo.CompanyCompetitionVO;
-import in.theuniquemedia.brainbout.common.vo.CompanyVO;
-import in.theuniquemedia.brainbout.common.vo.CompetitionVO;
+import in.theuniquemedia.brainbout.common.vo.*;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -19,6 +16,9 @@ public interface ICommon {
     Genre fetchGenreBySeq(Integer genreSeq);
 
     public List<Genre> fetchGenreList();
+
+    @Transactional
+    List<Integer> fetchGenreSeqList();
 
     @Transactional
     List<CorporateVO> fetchCompanyList();
@@ -66,5 +66,17 @@ public interface ICommon {
     AddCompetitionVO fetchCompetitionDetails(String token);
 
     @Transactional
-    List<CompetitionVO> fetchCompetitionList(Integer companySeq);
+    List<CompetitionVO> fetchCompetitionList(Integer companySeq, Integer locationSeq, String status);
+
+    @Transactional
+    List<CompanyLocation> fetchLocationsByCompanySeq(Integer companySeq);
+
+    @Transactional
+    List<CommonDetailsVO> fetchLocationDetails();
+
+    @Transactional
+    List<CommonDetailsVO> fetchCompanyLocationDetails(Integer companySeq);
+
+    @Transactional
+    List<CompanyLocationVO> fetchCompanyLocationDetails();
 }

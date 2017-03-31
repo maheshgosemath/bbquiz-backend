@@ -13,7 +13,11 @@ import java.util.List;
  * Created by mahesh on 2/22/17.
  */
 public interface IQuiz {
-    public List<Integer> fetchQuizList(Integer competitionSeq, Integer maxCount);
+    public List<Integer> fetchQuizList(String userId, Integer maxCount);
+
+    @Transactional
+    List<Integer> fetchQuizListByGenreSeq(List<Integer> genreSeqList, Integer maxCount);
+
     public QuizVO fetchQuiz(Integer quizSeq);
     public List<QuizVO> fetchQuizList(List<Integer> quizList);
 

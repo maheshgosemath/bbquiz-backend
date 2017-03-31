@@ -1,5 +1,7 @@
 package in.theuniquemedia.brainbout.admin.vo;
 
+import in.theuniquemedia.brainbout.common.vo.CommonDetailsVO;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -12,6 +14,7 @@ public class CorporateVO implements Serializable {
     private String spocName;
     private String spocEmail;
     List<String> domainList;
+    List<CommonDetailsVO> locationDetails;
 
     public Integer getCorporateSeq() {
         return corporateSeq;
@@ -51,5 +54,13 @@ public class CorporateVO implements Serializable {
 
     public void setDomainList(List<String> domainList) {
         this.domainList = domainList;
+    }
+
+    public List<CommonDetailsVO> getLocationDetails() {
+        return locationDetails;
+    }
+
+    public void setLocationDetails(List<CommonDetailsVO> locationDetails) {
+        this.locationDetails = locationDetails;
     }
 }

@@ -8,6 +8,8 @@ import in.theuniquemedia.brainbout.common.domain.*;
 import in.theuniquemedia.brainbout.common.repository.IRepository;
 import in.theuniquemedia.brainbout.common.util.CommonUtil;
 import in.theuniquemedia.brainbout.common.vo.CommonDetailsVO;
+import in.theuniquemedia.brainbout.common.vo.CompanyCompetitionVO;
+import in.theuniquemedia.brainbout.common.vo.CompanyLocationVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +37,9 @@ public class AdminService implements IAdmin {
     IRepository<CompanyDomain, Integer> companyDomainRepository;
 
     @Autowired
+    IRepository<CompanyLocation, Integer> companyLocationRepository;
+
+    @Autowired
     CommonDelegate commonDelegate;
 
     @Override
@@ -42,6 +47,7 @@ public class AdminService implements IAdmin {
     public void createCompany(CorporateVO addCorporateVO) {
         Integer companySeq = createCorporate(addCorporateVO);
         addCompanyDomain(companySeq, addCorporateVO.getDomainList());
+        addCompanyLocations(companySeq, addCorporateVO.getLocationDetails());
     }
 
     @Transactional
@@ -67,6 +73,23 @@ public class AdminService implements IAdmin {
                     companyDomain.setStatus(AppConstants.STATUS_ACTIVE);
                     companyDomainRepository.save(companyDomain);
                 }
+            }
+        }
+    }
+
+    @Transactional
+    private void addCompanyLocations(Integer companySeq, List<CommonDetailsVO> locationDetails) {
+        if(locationDetails != null && locationDetails.size() > 0) {
+            Company company = new Company();
+            company.setCompanySeq(companySeq);
+            for(CommonDetailsVO commonDetailsVO: locationDetails) {
+                LocationMstr locationMstr = new LocationMstr();
+                locationMstr.setLocationMstrSeq(commonDetailsVO.getSeq());
+                CompanyLocation companyLocation = new CompanyLocation();
+
+                companyLocation.setCompany(company);
+                companyLocation.setLocationMstr(locationMstr);
+                companyLocationRepository.save(companyLocation);
             }
         }
     }
@@ -98,9 +121,9 @@ public class AdminService implements IAdmin {
         addCompetitionVO.setStartDate(addCompanyCompetitionVO.getStartDate());
         addCompetitionVO.setEndDate(addCompanyCompetitionVO.getEndDate());
         addCompetitionVO.setTimeLimit(Integer.parseInt(addCompanyCompetitionVO.getTimeLimit()));
-        Integer competitionSeq = createCompetition(addCompetitionVO);
-        addCompetitionVO.setCompetitionSeq(competitionSeq);
         for(CommonDetailsVO companyDetailsVO: addCompanyCompetitionVO.getCommonDetailsVOList()) {
+            Integer competitionSeq = createCompetition(addCompetitionVO);
+            addCompetitionVO.setCompetitionSeq(competitionSeq);
             addCompetitionVO.setCompanySeq(companyDetailsVO.getSeq());
             addCompetition(addCompetitionVO);
         }
@@ -113,6 +136,32 @@ public class AdminService implements IAdmin {
         competition.setNoOfQuestions(10);
         competition.setStatus(AppConstants.STATUS_ACTIVE);
         return competitionRepository.save(competition);
+    }
+
+    @Override
+    @Transactional
+    public void updateCompanyCompetition(AddCompanyCompetitionVO addCompanyCompetitionVO) {
+        CompanyCompetition companyCompetition = commonDelegate.fetchCompanyCompetitionDetails(addCompanyCompetitionVO.getToken());
+        if(companyCompetition != null) {
+            companyCompetition.setEndTime(CommonUtil.convertStringToDate(addCompanyCompetitionVO.getEndDate(), "yyyy-MM-dd"));
+            companyCompetition.setStartTime(CommonUtil.convertStringToDate(addCompanyCompetitionVO.getStartDate(), "yyyy-MM-dd"));
+            companyCompetition.setTimeLimit(addCompanyCompetitionVO.getTimeLimit());
+
+            Competition competition = companyCompetition.getCompetition();
+            if(competition != null) {
+                competition.setCompetitionName(addCompanyCompetitionVO.getCompetitionName());
+                competitionRepository.merge(competition);
+            }
+            companyCompetitionRepository.merge(companyCompetition);
+        }
+    }
+
+    public void updateCompetition(AddCompetitionVO addCompetitionVO) {
+        Competition competition = commonDelegate.fetchCompetitionBySeq(addCompetitionVO.getCompetitionSeq());
+        if(competition != null) {
+            competition.setCompetitionName(addCompetitionVO.getCompetitionName());
+            competitionRepository.merge(competition);
+        }
     }
 
     @Override
@@ -162,6 +211,12 @@ public class AdminService implements IAdmin {
             company.setSpocName(newCorporateVO.getSpocName());
             companyRepository.merge(company);
             updateCompanyDomain(companySeq, newCorporateVO.getDomainList());
+
+            List<Integer> companyLocationList = new ArrayList<>();
+            for(CommonDetailsVO commonDetailsVO: newCorporateVO.getLocationDetails()) {
+                companyLocationList.add(commonDetailsVO.getSeq());
+            }
+            updateCompanyLocation(companySeq, companyLocationList);
         }
     }
 
@@ -190,6 +245,34 @@ public class AdminService implements IAdmin {
         }
     }
 
+    @Transactional
+    public void updateCompanyLocation(Integer companySeq, List<Integer> locationList) {
+        Company company = commonDelegate.fetchCompanyBySeq(companySeq);
+        List<CompanyLocation> companyLocationList = commonDelegate.fetchLocationsByCompanySeq(companySeq);
+        List<CompanyLocation> finalLocationList = new ArrayList();
+        for(CompanyLocation oldLocation: companyLocationList) {
+            if(locationList.contains(oldLocation.getLocationMstr().getLocationMstrSeq())) {
+                locationList.remove(oldLocation.getLocationMstr().getLocationMstrSeq());
+            } else {
+                oldLocation.setStatus(AppConstants.STATUS_INACTIVE);
+                finalLocationList.add(oldLocation);
+            }
+        }
+        for(Integer newDomain: locationList) {
+            CompanyLocation companyLocation = new CompanyLocation();
+            companyLocation.setCompany(company);
+            companyLocation.setStatus(AppConstants.STATUS_ACTIVE);
+
+            LocationMstr locationMstr = new LocationMstr();
+            locationMstr.setLocationMstrSeq(newDomain);
+            companyLocation.setLocationMstr(locationMstr);
+            finalLocationList.add(companyLocation);
+        }
+        for(CompanyLocation companyLocation: finalLocationList) {
+            companyLocationRepository.merge(companyLocation);
+        }
+    }
+
     @Override
     @Transactional
     public AddQuestionVO fetchQuizDetails(Integer quizSeq) {
@@ -208,4 +291,15 @@ public class AdminService implements IAdmin {
         return commonDelegate.fetchCompetitionDetails(token);
     }
 
+    @Override
+    @Transactional
+    public List<CommonDetailsVO> fetchLocationDetails() {
+        return commonDelegate.fetchLocationDetails();
+    }
+
+    @Override
+    @Transactional
+    public List<CompanyLocationVO> fetchCompanyLocationDetails() {
+        return commonDelegate.fetchCompanyLocationDetails();
+    }
 }

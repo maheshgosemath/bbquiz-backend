@@ -1,6 +1,10 @@
 package in.theuniquemedia.brainbout.common.domain;
 
+import org.springframework.security.core.userdetails.UserDetails;
+
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by mahesh on 3/8/17.
@@ -9,7 +13,8 @@ import javax.persistence.*;
 @Table(name = "user_profile")
 public class UserProfile {
     private Integer userProfileSeq;
-    private Integer compnaySeq;
+    private Integer companySeq;
+    private LocationMstr locationMstr;
     private String userId;
     private String password;
     private char status;
@@ -17,8 +22,16 @@ public class UserProfile {
     public UserProfile() {
     }
 
-    public UserProfile(Integer compnaySeq, String userId, String password, char status) {
-        this.compnaySeq = compnaySeq;
+    public UserProfile(Integer companySeq, String userId, String password, char status) {
+        this.companySeq = companySeq;
+        this.userId = userId;
+        this.password = password;
+        this.status = status;
+    }
+
+    public UserProfile(Integer companySeq, LocationMstr locationMstr, String userId, String password, char status) {
+        this.companySeq = companySeq;
+        this.locationMstr = locationMstr;
         this.userId = userId;
         this.password = password;
         this.status = status;
@@ -36,12 +49,22 @@ public class UserProfile {
     }
 
     @Column(name = "COMPANY_SEQ", nullable = false)
-    public Integer getCompnaySeq() {
-        return compnaySeq;
+    public Integer getCompanySeq() {
+        return companySeq;
     }
 
-    public void setCompnaySeq(Integer compnaySeq) {
-        this.compnaySeq = compnaySeq;
+    public void setCompanySeq(Integer companySeq) {
+        this.companySeq = companySeq;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "LOCATION_MSTR_SEQ", nullable = false)
+    public LocationMstr getLocationMstr() {
+        return locationMstr;
+    }
+
+    public void setLocationMstr(LocationMstr locationMstr) {
+        this.locationMstr = locationMstr;
     }
 
     @Column(name = "USER_ID", nullable = false)

@@ -2,10 +2,13 @@ package in.theuniquemedia.brainbout.user.service;
 
 import in.theuniquemedia.brainbout.common.domain.CompetitionParticipant;
 import in.theuniquemedia.brainbout.common.domain.Participant;
+import in.theuniquemedia.brainbout.common.domain.UserGenre;
+import in.theuniquemedia.brainbout.common.domain.UserProfile;
 import in.theuniquemedia.brainbout.common.vo.AuthenticationVO;
 import in.theuniquemedia.brainbout.common.vo.CommonDetailsVO;
-import in.theuniquemedia.brainbout.common.vo.DashboardVO;
+import in.theuniquemedia.brainbout.common.vo.UserCompetitionVO;
 import in.theuniquemedia.brainbout.quiz.vo.QuizOptionVO;
+import in.theuniquemedia.brainbout.user.vo.DashboardVO;
 import in.theuniquemedia.brainbout.user.vo.UserRegistrationRequestVO;
 import in.theuniquemedia.brainbout.user.vo.UserResultVO;
 import in.theuniquemedia.brainbout.user.vo.UserVO;
@@ -49,6 +52,9 @@ public interface IUser {
     CompetitionParticipant getUserStats(String token);
 
     @Transactional
+    UserProfile fetchUserProfileByUserId(String userId);
+
+    @Transactional
     void createUser(UserRegistrationRequestVO userRegistrationRequestVO);
 
     @Transactional
@@ -67,11 +73,17 @@ public interface IUser {
     Long fetchCompetitionParticipantCount(Integer companySeq, Integer competitionSeq);
 
     @Transactional
-    List<DashboardVO> fetchUserDashboard(Integer companySeq, String email);
+    DashboardVO fetchUserDashboard(Integer companySeq, String email);
 
     @Transactional
     List<CommonDetailsVO> fetchCompanyTopPlayers(Integer companySeq);
 
     @Transactional
     List<CommonDetailsVO> fetchCompetitionTopPlayers(Integer companySeq, Integer competitionSeq);
+
+    @Transactional
+    List<CommonDetailsVO> fetchTopPlayersByLocation(String userId, Integer companySeq, Integer competitionSeq);
+
+    @Transactional
+    List<UserGenre> fetchUserGenre(String userId);
 }

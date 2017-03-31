@@ -39,6 +39,12 @@ public class CommonService implements ICommon {
     @Autowired
     IRepository<CompanyDomain, Integer> companyDomainRepository;
 
+    @Autowired
+    IRepository<LocationMstr, Integer> locationMstrRepository;
+
+    @Autowired
+    IRepository<CompanyLocation, Integer> companyLocationRepository;
+
     @Override
     @Transactional
     public Genre fetchGenreBySeq(Integer genreSeq) {
@@ -50,6 +56,19 @@ public class CommonService implements ICommon {
     public List<Genre> fetchGenreList() {
         List<Genre> genreList = genreRepository.findByNamedQuery(AppConstants.FETCH_GENRE_LIST);
         return genreList;
+    }
+
+    @Transactional
+    @Override
+    public List<Integer> fetchGenreSeqList() {
+        List<Integer> genreSeqList = new ArrayList<>();
+        List<Genre> genreList = fetchGenreList();
+        if(genreList != null && genreList.size() > 0) {
+            for(Genre genre: genreList) {
+                genreSeqList.add(genre.getGenreSeq());
+            }
+        }
+        return genreSeqList;
     }
 
     @Override
@@ -109,6 +128,7 @@ public class CommonService implements ICommon {
             corporateVO.setSpocName(company.getSpocName());
             corporateVO.setSpocEmail(company.getSpocEmail());
             corporateVO.setDomainList(fetchCompanyDomainList(company.getCompanySeq()));
+            corporateVO.setLocationDetails(fetchCompanyLocationDetails(company.getCompanySeq()));
             corporateList.add(corporateVO);
         }
         return corporateList;
@@ -263,7 +283,7 @@ public class CommonService implements ICommon {
         HashMap<String, Object> queryParams = new HashMap<>();
         queryParams.put("companySeq", companySeq);
         List<CompanyCompetition> companyCompetitionList = companyCompetitionRepository.findByNamedQuery(
-                AppConstants.FETCH_COMPETITION_BY_COMPANY, queryParams);
+                AppConstants.FETCH_ACTIVE_COMPETITION_BY_COMPANY, queryParams);
         if(companyCompetitionList != null && companyCompetitionList.size() > 0) {
             return companyCompetitionList.get(0);
         }
@@ -300,17 +320,48 @@ public class CommonService implements ICommon {
     }
 
     @Transactional
-    public List<CompanyCompetition> fetchActiveCompetitionList(Integer companySeq) {
+    public List<CompanyCompetition> fetchActiveCompetitionList(Integer companySeq, Integer locationSeq) {
         HashMap<String, Object> queryParams = new HashMap<>();
         queryParams.put("companySeq", companySeq);
-        return companyCompetitionRepository.findByNamedQuery(AppConstants.FETCH_COMPETITION_BY_COMPANY, queryParams);
+        queryParams.put("locationSeq", locationSeq);
+        return companyCompetitionRepository.findByNamedQuery(AppConstants.FETCH_ACTIVE_COMPETITION_BY_COMPANY, queryParams);
+    }
+
+    @Transactional
+    public List<CompanyCompetition> fetchClosedCompetitionList(Integer companySeq, Integer locationSeq) {
+        HashMap<String, Object> queryParams = new HashMap<>();
+        queryParams.put("companySeq", companySeq);
+        queryParams.put("locationSeq", locationSeq);
+        return companyCompetitionRepository.findByNamedQuery(AppConstants.FETCH_CLOSED_COMPETITION_BY_COMPANY, queryParams);
+    }
+
+    @Transactional
+    public List<CompanyCompetition> fetchUpcomingCompetitionList(Integer companySeq, Integer locationSeq) {
+        HashMap<String, Object> queryParams = new HashMap<>();
+        queryParams.put("companySeq", companySeq);
+        queryParams.put("locationSeq", locationSeq);
+        return companyCompetitionRepository.findByNamedQuery(AppConstants.FETCH_UPCOMING_COMPETITION_BY_COMPANY, queryParams);
     }
 
     @Override
     @Transactional
-    public List<CompetitionVO> fetchCompetitionList(Integer companySeq) {
+    public List<CompetitionVO> fetchCompetitionList(Integer companySeq, Integer locationSeq, String status) {
+        List<CompanyCompetition> companyCompetitionList = new ArrayList<>();
+        if(AppConstants.COMPETITION_STATUS_ACTIVE.equals(status)) {
+            companyCompetitionList = fetchActiveCompetitionList(companySeq, locationSeq);
+        }
+        if(AppConstants.COMPETITION_STATUS_CLOSED.equals(status)) {
+            companyCompetitionList = fetchClosedCompetitionList(companySeq, locationSeq);
+        }
+        if(AppConstants.COMPETITION_STATUS_UPCOMING.equals(status)) {
+            companyCompetitionList = fetchUpcomingCompetitionList(companySeq, locationSeq);
+        }
+        return convertCompetition(companyCompetitionList);
+    }
+
+    @Transactional
+    private List<CompetitionVO> convertCompetition(List<CompanyCompetition> companyCompetitionList) {
         List<CompetitionVO> competitionVOList = new ArrayList<>();
-        List<CompanyCompetition> companyCompetitionList = fetchActiveCompetitionList(companySeq);
         if(companyCompetitionList != null && companyCompetitionList.size() > 0) {
             for(CompanyCompetition companyCompetition: companyCompetitionList) {
                 CompetitionVO competitionVO = new CompetitionVO();
@@ -324,4 +375,63 @@ public class CommonService implements ICommon {
         return competitionVOList;
     }
 
+    @Transactional
+    public List<LocationMstr> fetchAllLocations() {
+        List<LocationMstr> locationMstrList = locationMstrRepository.findByNamedQuery(AppConstants.FETCH_ALL_LOCATIONS);
+        return locationMstrList;
+    }
+
+    @Override
+    @Transactional
+    public List<CompanyLocation> fetchLocationsByCompanySeq(Integer companySeq) {
+        HashMap<String, Object> queryParams = new HashMap<>();
+        queryParams.put("companySeq", companySeq);
+        List<CompanyLocation> companyLocationList = companyLocationRepository.findByNamedQuery(
+                AppConstants.FETCH_LOCATIONS_BY_COMPANY, queryParams);
+        return companyLocationList;
+    }
+
+    @Override
+    @Transactional
+    public List<CommonDetailsVO> fetchLocationDetails() {
+        List<CommonDetailsVO> commonDetailsVOList = new ArrayList<>();
+        List<LocationMstr> locationMstrList = fetchAllLocations();
+        if(locationMstrList != null && locationMstrList.size() > 0) {
+            for(LocationMstr locationMstr: locationMstrList) {
+                commonDetailsVOList.add(new CommonDetailsVO(locationMstr.getLocationMstrSeq(), locationMstr.getLocationText()));
+            }
+        }
+        return commonDetailsVOList;
+    }
+
+    @Override
+    @Transactional
+    public List<CommonDetailsVO> fetchCompanyLocationDetails(Integer companySeq) {
+        List<CommonDetailsVO> commonDetailsVOList = new ArrayList<>();
+        List<CompanyLocation> locationMstrList = fetchLocationsByCompanySeq(companySeq);
+        if(locationMstrList != null && locationMstrList.size() > 0) {
+            for(CompanyLocation companyLocation: locationMstrList) {
+                LocationMstr locationMstr = companyLocation.getLocationMstr();
+                if(locationMstr != null) {
+                    commonDetailsVOList.add(new CommonDetailsVO(locationMstr.getLocationMstrSeq(), locationMstr.getLocationText()));
+                }
+            }
+        }
+        return commonDetailsVOList;
+    }
+
+    @Override
+    @Transactional
+    public List<CompanyLocationVO> fetchCompanyLocationDetails() {
+        List<CompanyLocationVO> companyLocationVOList = new ArrayList<>();
+        List<Company> companyList = fetchCompanyDomainList();
+        if(companyList != null && companyList.size() > 0) {
+            for(Company company : companyList) {
+                CompanyLocationVO companyLocationVO = new CompanyLocationVO(company.getCompanySeq(), company.getCompanyName());
+                companyLocationVO.setLocationDetails(fetchCompanyLocationDetails(company.getCompanySeq()));
+                companyLocationVOList.add(companyLocationVO);
+            }
+        }
+        return companyLocationVOList;
+    }
 }

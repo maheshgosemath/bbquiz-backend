@@ -13,6 +13,7 @@ public class Genre {
     private Integer genreSeq;
     private String genreText;
     private String genreCd;
+    private char isSponsored;
     private char status;
 
     public Genre() {
@@ -21,6 +22,13 @@ public class Genre {
     public Genre(String genreText, String genreCd, char status) {
         this.genreText = genreText;
         this.genreCd = genreCd;
+        this.status = status;
+    }
+
+    public Genre(String genreText, String genreCd, char isSponsored, char status) {
+        this.genreText = genreText;
+        this.genreCd = genreCd;
+        this.isSponsored = isSponsored;
         this.status = status;
     }
 
@@ -51,6 +59,15 @@ public class Genre {
 
     public void setGenreCd(String genreCd) {
         this.genreCd = genreCd;
+    }
+
+    @Column(name="IS_SPONSORED")
+    public char getIsSponsored() {
+        return isSponsored;
+    }
+
+    public void setIsSponsored(char isSponsored) {
+        this.isSponsored = isSponsored;
     }
 
     @Column(name="STATUS")

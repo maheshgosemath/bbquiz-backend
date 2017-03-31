@@ -25,6 +25,9 @@
 	<http pattern="/updatequestion" security="none"/>
 	<http pattern="/validateuser" security="none"/>
 	<http pattern="/emailverify" security="none"/>
+	<http pattern="/locationdetails" security="none"/>
+	<http pattern="/companylocations" security="none"/>
+	<http pattern="/companylocationdetails" security="none"/>
 
 	<http use-expressions="true" auto-config="true">
 		<intercept-url pattern="/**" access="hasAnyRole('ROLE_USER')"/>

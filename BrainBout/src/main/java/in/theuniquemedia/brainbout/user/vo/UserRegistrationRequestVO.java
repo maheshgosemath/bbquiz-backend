@@ -3,6 +3,7 @@ package in.theuniquemedia.brainbout.user.vo;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Created by mahesh on 3/7/17.
@@ -14,6 +15,8 @@ public class UserRegistrationRequestVO implements Serializable {
     private Integer subCompanySeq;
     private String password;
     private String passwordConfirm;
+    private Integer locationSeq;
+    private List<Integer> genreSeq;
 
     public UserVO getUserVO() {
         return userVO;
@@ -53,5 +56,21 @@ public class UserRegistrationRequestVO implements Serializable {
 
     public void setPasswordConfirm(String passwordConfirm) {
         this.passwordConfirm = passwordConfirm;
+    }
+
+    public Integer getLocationSeq() {
+        return locationSeq;
+    }
+
+    public void setLocationSeq(Integer locationSeq) {
+        this.locationSeq = locationSeq;
+    }
+
+    public List<Integer> getGenreSeq() {
+        return genreSeq;
+    }
+
+    public void setGenreSeq(List<Integer> genreSeq) {
+        this.genreSeq = genreSeq;
     }
 }

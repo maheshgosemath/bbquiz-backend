@@ -10,6 +10,20 @@ public class CommonDetailsVO implements Serializable {
     private String name;
     private Long score;
 
+    public CommonDetailsVO() {
+    }
+
+    public CommonDetailsVO(Integer seq, String name) {
+        this.seq = seq;
+        this.name = name;
+    }
+
+    public CommonDetailsVO(Integer seq, String name, Long score) {
+        this.seq = seq;
+        this.name = name;
+        this.score = score;
+    }
+
     public Integer getSeq() {
         return seq;
     }

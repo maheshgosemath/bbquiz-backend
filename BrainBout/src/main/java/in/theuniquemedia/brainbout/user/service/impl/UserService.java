@@ -5,25 +5,23 @@ import in.theuniquemedia.brainbout.common.constants.ResponseCode;
 import in.theuniquemedia.brainbout.common.delegate.CommonDelegate;
 import in.theuniquemedia.brainbout.common.domain.*;
 import in.theuniquemedia.brainbout.common.repository.IRepository;
-import in.theuniquemedia.brainbout.common.repository.impl.RepositoryImpl;
 import in.theuniquemedia.brainbout.common.service.IEmail;
 import in.theuniquemedia.brainbout.common.util.CommonUtil;
 import in.theuniquemedia.brainbout.common.util.PropertiesUtil;
 import in.theuniquemedia.brainbout.common.vo.*;
 import in.theuniquemedia.brainbout.quiz.vo.QuizOptionVO;
 import in.theuniquemedia.brainbout.user.service.IUser;
+import in.theuniquemedia.brainbout.user.vo.DashboardVO;
 import in.theuniquemedia.brainbout.user.vo.UserRegistrationRequestVO;
 import in.theuniquemedia.brainbout.user.vo.UserResultVO;
 import in.theuniquemedia.brainbout.user.vo.UserVO;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
-import java.security.SecureRandom;
 import java.util.*;
 
 /**
@@ -49,6 +47,9 @@ public class UserService implements IUser {
 
     @Autowired
     IRepository<UserToken, Integer> userTokenRepository;
+
+    @Autowired
+    IRepository<UserGenre, Integer> userGenreRepository;
 
     @Autowired
     IEmail emailService;
@@ -178,7 +179,7 @@ public class UserService implements IUser {
         HashMap<Integer, Integer> correctOptions = commonDelegate.fetchQuizCorrectOptionMap(quizSeqList);
         if(correctOptions != null) {
             for(QuizOptionVO quizOptionVO: quizOptionVOList) {
-                if(quizOptionVO.getOptionSeq() == correctOptions.get(quizOptionVO.getQuizSeq())) {
+                if(quizOptionVO.getOptionSeq().equals(correctOptions.get(quizOptionVO.getQuizSeq()))) {
                     score++;
                     quizOptionVO.setIsCorrect("Y");
                 } else {
@@ -242,6 +243,19 @@ public class UserService implements IUser {
         return userProfileRepository.findById(UserProfile.class, userProfileSeq);
     }
 
+    @Override
+    @Transactional
+    public UserProfile fetchUserProfileByUserId(String userId) {
+        HashMap<String, Object> queryParams = new HashMap<>();
+        queryParams.put("userId", userId);
+        List<UserProfile> userProfileList = userProfileRepository.findByNamedQuery(AppConstants.FETCH_USER_PROFILE_BY_USER_ID,
+                queryParams);
+        if(userProfileList != null && userProfileList.size() > 0) {
+            return userProfileList.get(0);
+        }
+        return null;
+    }
+
     @Transactional
     public UserProfileDetail fetchUserProfileDetailById(Integer userProfileDetailSeq) {
         return userProfileDetailRepository.findById(UserProfileDetail.class, userProfileDetailSeq);
@@ -255,13 +269,17 @@ public class UserService implements IUser {
     @Transactional
     public Integer createUserProfile(UserRegistrationRequestVO userRegistrationRequestVO) {
         UserProfile userProfile = new UserProfile();
-        userProfile.setCompnaySeq(userRegistrationRequestVO.getCompanySeq());
+        userProfile.setCompanySeq(userRegistrationRequestVO.getCompanySeq());
         userProfile.setUserId(userRegistrationRequestVO.getUserVO().getEmail());
 
         ShaPasswordEncoder shaPasswordEncoder = new ShaPasswordEncoder(256);
         shaPasswordEncoder.setEncodeHashAsBase64(true);
         String encodedPassword = shaPasswordEncoder.encodePassword(userRegistrationRequestVO.getPassword(), null);
         userProfile.setPassword(encodedPassword);
+
+        LocationMstr locationMstr = new LocationMstr();
+        locationMstr.setLocationMstrSeq(userRegistrationRequestVO.getLocationSeq());
+        userProfile.setLocationMstr(locationMstr);
 
         userProfile.setStatus(AppConstants.STATUS_ACTIVE);
         return userProfileRepository.save(userProfile);
@@ -284,6 +302,7 @@ public class UserService implements IUser {
 
                 createUserProfileDetails(userProfileSeq);
                 createUserTokenAndSendMail(userProfileSeq, userVO);
+                createUserLocationAndGenre(userProfileSeq, userRegistrationRequestVO);
             }
         }
     }
@@ -313,7 +332,34 @@ public class UserService implements IUser {
         userProfileDetail.setUserProfile(fetchUserProfileById(userProfileSeq));
         userProfileDetail.setUserRegistrationStatus("PENDING");
         userProfileDetail.setStatus(AppConstants.STATUS_ACTIVE);
+
         userProfileDetailRepository.save(userProfileDetail);
+    }
+
+    @Transactional
+    private void createUserLocationAndGenre(Integer userProfileSeq, UserRegistrationRequestVO userRegistrationRequestVO) {
+        UserProfileDetail userProfileDetails = fetchUserProfileDetail(userProfileSeq);
+        if(userProfileDetails != null) {
+            if (userRegistrationRequestVO.getLocationSeq() != null) {
+                LocationMstr locationMstr = new LocationMstr();
+                locationMstr.setLocationMstrSeq(userRegistrationRequestVO.getLocationSeq());
+                userProfileDetails.setLocationMstr(locationMstr);
+                userProfileDetailRepository.merge(userProfileDetails);
+            }
+        }
+
+        UserProfile userProfile = fetchUserProfileById(userProfileSeq);
+        if(userProfile != null) {
+            if(userRegistrationRequestVO.getGenreSeq() != null && userRegistrationRequestVO.getGenreSeq().size() > 0) {
+                for(Integer genreSeq: userRegistrationRequestVO.getGenreSeq()) {
+                    Genre genre = new Genre();
+                    genre.setGenreSeq(genreSeq);
+
+                    UserGenre userGenre = new UserGenre(userProfile, genre, AppConstants.STATUS_ACTIVE);
+                    userGenreRepository.save(userGenre);
+                }
+            }
+        }
     }
 
     @Override
@@ -420,33 +466,51 @@ public class UserService implements IUser {
         return 0L;
     }
 
-    @Override
     @Transactional
-    public List<DashboardVO> fetchUserDashboard(Integer companySeq, String email) {
-        List<DashboardVO> dashboardVOList = new ArrayList();
-        List<CompetitionVO> competitionVOList = commonDelegate.fetchActiveCompetitionList(companySeq);
+    public DashboardVO fetchUserDashboard(Integer companySeq, String email) {
+        DashboardVO dashboardVO = new DashboardVO();
+        Integer userLocation = fetchUserLocation(email);
+        if(userLocation != null) {
+            List<CompetitionVO> competitionVOList = commonDelegate.fetchActiveCompetitionList(companySeq, userLocation,
+                    AppConstants.COMPETITION_STATUS_ACTIVE);
+            dashboardVO.setCurrentCompetitionList(fetchCompetitionStatus(companySeq, email, competitionVOList));
+
+            competitionVOList = commonDelegate.fetchActiveCompetitionList(companySeq, userLocation,
+                    AppConstants.COMPETITION_STATUS_CLOSED);
+            dashboardVO.setPastCompetitionList(fetchCompetitionStatus(companySeq, email, competitionVOList));
+
+            competitionVOList = commonDelegate.fetchActiveCompetitionList(companySeq, userLocation,
+                    AppConstants.COMPETITION_STATUS_UPCOMING);
+            dashboardVO.setUpcomingCompetitionList(fetchCompetitionStatus(companySeq, email, competitionVOList));
+        }
+        return dashboardVO;
+    }
+
+    @Transactional
+    private List<UserCompetitionVO> fetchCompetitionStatus(Integer companySeq, String email, List<CompetitionVO> competitionVOList) {
+        List<UserCompetitionVO> userCompetitionVOList = new ArrayList();
         if(competitionVOList != null && competitionVOList.size() > 0) {
             for(CompetitionVO competitionVO: competitionVOList) {
-                DashboardVO dashboardVO = new DashboardVO();
+                UserCompetitionVO UserCompetitionVO = new UserCompetitionVO();
                 competitionVO.setParticipants(fetchCompetitionParticipantCount(companySeq,
                         competitionVO.getCompetitionSeq()).intValue());
-                dashboardVO.setCompetitionVO(competitionVO);
+                UserCompetitionVO.setCompetitionVO(competitionVO);
                 CompetitionParticipant competitionParticipant = getUserCompetitionData(email, competitionVO.getCompetitionSeq());
                 if(competitionParticipant != null) {
                     if(competitionParticipant.getSubmitted() == 'Y') {
-                        dashboardVO.setUserStatus("submitted");
+                        UserCompetitionVO.setUserStatus("submitted");
                     } else {
-                        dashboardVO.setUserStatus("PARTICIPATED");
-                        dashboardVO.setUserTimeLeft(fetchUserTime(companySeq, competitionVO.getCompetitionSeq(), email));
+                        UserCompetitionVO.setUserStatus("PARTICIPATED");
+                        UserCompetitionVO.setUserTimeLeft(fetchUserTime(companySeq, competitionVO.getCompetitionSeq(), email));
                     }
                 } else {
-                    dashboardVO.setUserStatus("NP");
-                    dashboardVO.setUserTimeLeft(competitionVO.getTotalTime());
+                    UserCompetitionVO.setUserStatus("NP");
+                    UserCompetitionVO.setUserTimeLeft(competitionVO.getTotalTime());
                 }
-                dashboardVOList.add(dashboardVO);
+                userCompetitionVOList.add(UserCompetitionVO);
             }
         }
-        return dashboardVOList;
+        return userCompetitionVOList;
     }
 
     @Override
@@ -468,5 +532,53 @@ public class UserService implements IUser {
         List<CommonDetailsVO> commonDetailsVOList = (List<CommonDetailsVO>) competitionParticipantRepository.findVOByNamedQuery(CommonDetailsVO.class,
                 AppConstants.FETCH_COMPETITION_TOP_PARTICIPANTS, queryParams);
         return commonDetailsVOList;
+    }
+
+    @Override
+    @Transactional
+    public List<CommonDetailsVO> fetchTopPlayersByLocation(String userId, Integer companySeq, Integer competitionSeq) {
+        Integer userLocation = fetchUserLocation(userId);
+            return fetchCompetitionTopPlayersByLocation(companySeq, competitionSeq,
+                    userLocation);
+    }
+
+    @Transactional
+    public List<CommonDetailsVO> fetchCompetitionTopPlayersByLocation(Integer companySeq, Integer competitionSeq, Integer locationSeq) {
+        HashMap<String, Object> queryParams = new HashMap<>();
+        queryParams.put("companySeq", companySeq);
+        queryParams.put("competitionSeq", competitionSeq);
+        queryParams.put("locationSeq", locationSeq);
+        List<CommonDetailsVO> commonDetailsVOList = (List<CommonDetailsVO>) competitionParticipantRepository.findVOByNamedQuery(CommonDetailsVO.class,
+                AppConstants.FETCH_COMPETITION_TOP_PARTICIPANTS_BY_LOCATION, queryParams);
+        return commonDetailsVOList;
+    }
+
+    @Override
+    @Transactional
+    public List<UserGenre> fetchUserGenre(String userId) {
+        UserProfile userProfile = fetchUserProfileByUserId(userId);
+        if(userProfile != null) {
+            return fetchUserGenre(userProfile.getUserProfileSeq());
+        }
+        return null;
+    }
+
+    @Transactional
+    public List<UserGenre> fetchUserGenre(Integer userProfileSeq) {
+        HashMap<String, Object> queryParams = new HashMap<>();
+        queryParams.put("userProfileSeq", userProfileSeq);
+        List<UserGenre> userGenreList = userGenreRepository.findByNamedQuery(AppConstants.FETCH_USER_GENRE, queryParams);
+        return userGenreList;
+    }
+
+    @Transactional
+    private Integer fetchUserLocation(String userId) {
+        UserProfile userProfile = fetchUserProfileByUserId(userId);
+        if(userProfile != null) {
+            if(userProfile.getLocationMstr() != null) {
+                return userProfile.getLocationMstr().getLocationMstrSeq();
+            }
+        }
+        return null;
     }
 }

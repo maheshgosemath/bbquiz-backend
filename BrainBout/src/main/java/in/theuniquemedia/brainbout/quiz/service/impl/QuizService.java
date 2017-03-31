@@ -4,9 +4,7 @@ import in.theuniquemedia.brainbout.admin.vo.AddQuestionVO;
 import in.theuniquemedia.brainbout.admin.vo.QuestionVO;
 import in.theuniquemedia.brainbout.common.constants.AppConstants;
 import in.theuniquemedia.brainbout.common.delegate.CommonDelegate;
-import in.theuniquemedia.brainbout.common.domain.Genre;
-import in.theuniquemedia.brainbout.common.domain.Quiz;
-import in.theuniquemedia.brainbout.common.domain.QuizOptions;
+import in.theuniquemedia.brainbout.common.domain.*;
 import in.theuniquemedia.brainbout.common.repository.IRepository;
 import in.theuniquemedia.brainbout.common.util.CommonUtil;
 import in.theuniquemedia.brainbout.quiz.service.IQuiz;
@@ -39,21 +37,40 @@ public class QuizService implements IQuiz {
 
     @Override
     @Transactional
-    public List<Integer> fetchQuizList(Integer competitionSeq, Integer maxCount) {
+    public List<Integer> fetchQuizList(String userId, Integer maxCount) {
 
         List<Integer> quizSeqList = new ArrayList<>();
-        List<Integer> quizList = null;
+        List<Integer> genreSeqList = commonDelegate.fetchGenreSeqList();
+        List<UserGenre> userGenreList = commonDelegate.fetchUserGenre(userId);
 
-        List<Genre> genreList = commonDelegate.fetchGenreList();
-        if(genreList != null && genreList.size() > 0) {
-            for(Genre genre: genreList) {
-                quizList = fetchQuizListByGenre(competitionSeq, genre.getGenreCd(), maxCount);
-                if(quizList != null && quizList.size() > 0) {
-                    quizSeqList.addAll(quizList);
-                }
+        if(userGenreList != null) {
+            for(UserGenre userGenre: userGenreList) {
+                List<Integer> tempList = new ArrayList<>();
+                tempList.add(userGenre.getGenre().getGenreSeq());
+                quizSeqList.addAll(fetchQuizListByGenreSeq(tempList, 10));
+                genreSeqList.remove(userGenre.getGenre().getGenreSeq());
             }
         }
+        quizSeqList.addAll(fetchQuizListByGenreSeq(genreSeqList, 10));
+        quizSeqList.addAll(fetchSponsoredQuizList(2));
         return quizSeqList;
+    }
+
+    @Override
+    @Transactional
+    public List<Integer> fetchQuizListByGenreSeq(List<Integer> genreSeqList, Integer maxCount) {
+        HashMap<String, Object> queryParams = new HashMap<>();
+        queryParams.put("genreSeqList", genreSeqList);
+        List<Integer> quizList = (List<Integer>)quizRepository.findObjectListByNamedQuery(AppConstants.FETCH_QUIZ_LIST_BY_GENRE_SEQ,
+                queryParams, 0, maxCount);
+        return quizList;
+    }
+
+    @Transactional
+    private List<Integer> fetchSponsoredQuizList(Integer maxCount) {
+        List<Integer> quizList = (List<Integer>) quizRepository.findObjectListByNamedQuery(AppConstants.FETCH_SPONSORED_QUIZ_LIST,
+                null, 0, maxCount);
+        return quizList;
     }
 
     @Transactional
@@ -222,7 +239,6 @@ public class QuizService implements IQuiz {
             }
         }
     }
-
 
     @Transactional
     public void saveQuizOptions(Integer quizSeq, List<OptionVO> optionVOList) {

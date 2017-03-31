@@ -2,6 +2,7 @@ package in.theuniquemedia.brainbout.admin.service;
 
 import in.theuniquemedia.brainbout.admin.vo.*;
 import in.theuniquemedia.brainbout.common.vo.CommonDetailsVO;
+import in.theuniquemedia.brainbout.common.vo.CompanyLocationVO;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -16,6 +17,9 @@ public interface IAdmin {
 
     @Transactional
     void addCompanyCompetition(AddCompanyCompetitionVO addCompanyCompetitionVO);
+
+    @Transactional
+    void updateCompanyCompetition(AddCompanyCompetitionVO addCompanyCompetitionVO);
 
     @Transactional
     void createQuestion(AddQuestionVO addQuestionVO);
@@ -46,4 +50,10 @@ public interface IAdmin {
 
     @Transactional
     AddCompetitionVO fetchCompetiotionDetails(String token);
+
+    @Transactional
+    List<CommonDetailsVO> fetchLocationDetails();
+
+    @Transactional
+    List<CompanyLocationVO> fetchCompanyLocationDetails();
 }

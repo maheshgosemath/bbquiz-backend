@@ -174,6 +174,20 @@ public class AdminController {
         }
     }
 
+    @RequestMapping(value="updatecompetition", method= RequestMethod.POST)
+    public @ResponseBody
+    ResponseEntity<AddResponseVO> updateCompetition(@RequestBody AddCompanyCompetitionVO addCompanyCompetitionVO) {
+        AddResponseVO addResponseVO = new AddResponseVO();
+        try {
+            adminService.updateCompanyCompetition(addCompanyCompetitionVO);
+            addResponseVO.setStatus("success");
+            return new ResponseEntity<>(addResponseVO, HttpStatus.OK);
+        } catch(Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(addResponseVO, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @RequestMapping(value="questioninfo")
     public @ResponseBody ResponseEntity<AddQuestionVO> fetchQuizDetails(@RequestParam Integer quizSeq) {
         AddQuestionVO addCorporateVO = new AddQuestionVO();
@@ -208,4 +222,27 @@ public class AdminController {
         }
     }
 
+    @RequestMapping(value="locationdetails")
+    public @ResponseBody ResponseEntity<String> fetchLocationDetails() {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("locationdetails", adminService.fetchLocationDetails());
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
+        } catch(Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>("", HttpStatus.OK);
+        }
+    }
+
+    @RequestMapping(value="companylocationdetails")
+    public @ResponseBody ResponseEntity<String> fetchCompanyLocationDetails() {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("companylocationdetails", adminService.fetchCompanyLocationDetails());
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
+        } catch(Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>("", HttpStatus.OK);
+        }
+    }
 }

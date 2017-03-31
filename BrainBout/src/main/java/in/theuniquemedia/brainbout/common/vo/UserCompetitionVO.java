@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * Created by mahesh on 3/14/17.
  */
-public class DashboardVO implements Serializable {
+public class UserCompetitionVO implements Serializable {
     private CompetitionVO competitionVO;
     private String userStatus;
     private Integer userTimeLeft;

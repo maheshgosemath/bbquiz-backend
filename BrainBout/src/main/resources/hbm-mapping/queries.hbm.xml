@@ -23,7 +23,19 @@
     </query>
     <query name="Quiz.fetchQuizListByGenreCd">
         <![CDATA[
-            select q.quizSeq from Quiz q where q.genre.genreCd = :genreCd and q.status = 'A'
+            select q.quizSeq from Quiz q where q.genre.genreCd = :genreCd and q.status = 'A' and q.genre.isSponsored = 'N'
+            order by rand()
+        ]]>
+    </query>
+    <query name="Quiz.fetchQuizListByGenreSeq">
+        <![CDATA[
+            select q.quizSeq from Quiz q where q.genre.genreSeq in (:genreSeqList) and q.status = 'A' and q.genre.isSponsored = 'N'
+            order by rand()
+        ]]>
+    </query>
+    <query name="Quiz.fetchSponsoredQuizList">
+        <![CDATA[
+            select q.quizSeq from Quiz q where q.status = 'A' and q.genre.isSponsored = 'Y'
             order by rand()
         ]]>
     </query>
@@ -70,9 +82,25 @@
             from Quiz q where q.status = 'A'
         ]]>
     </query>
-    <query name="CompanyCompetition.fetchCompetitionByCompany">
+    <query name="CompanyCompetition.fetchActiveCompetitionByCompanyLocation">
         <![CDATA[
             from CompanyCompetition cc where cc.company.companySeq = :companySeq and cc.status = 'A'
+            and (TIMEDIFF(current_timestamp , cc.startTime) > 0 and TIMEDIFF(cc.endTime, current_timestamp) > 0)
+            and cc.locationMstr.locationMstrSeq = :locationSeq
+        ]]>
+    </query>
+    <query name="CompanyCompetition.fetchClosedCompetitionByCompanyLocation">
+        <![CDATA[
+            from CompanyCompetition cc where cc.company.companySeq = :companySeq and cc.status = 'A'
+            and TIMEDIFF(cc.endTime, current_timestamp) < 0
+            and cc.locationMstr.locationMstrSeq = :locationSeq
+        ]]>
+    </query>
+    <query name="CompanyCompetition.fetchUpcomingCompetitionByCompanyLocation">
+        <![CDATA[
+            from CompanyCompetition cc where cc.company.companySeq = :companySeq and cc.status = 'A'
+            and TIMEDIFF(cc.startTime, current_timestamp) > 0
+            and cc.locationMstr.locationMstrSeq = :locationSeq
         ]]>
     </query>
     <query name="CompanyCompetition.fetchCompetitionByToken">
@@ -103,6 +131,16 @@
             order by cp.score desc, cp.timeTaken desc, cp.startTime asc
         ]]>
     </query>
+    <query name="CompetitionParticipant.fetchTopCompetitionParticipantsByLocation">
+        <![CDATA[
+            select cp.score as seq, cp.participant.name as name from CompetitionParticipant cp
+            where cp.participant.status = 'A'
+            and cp.status = 'A' and cp.submitted = 'Y'
+            and cp.competition.competitionSeq = :competitionSeq and cp.companySeq = :companySeq
+            and cp.participant.userProfile.userProfileSeq in (select upd.userProfile.userProfileSeq from UserProfileDetail upd where upd.locationMstr.locationMstrSeq = :locationSeq)
+            order by cp.score desc, cp.timeTaken desc, cp.startTime asc
+        ]]>
+    </query>
     <query name="UserToken.fetchUserToken">
         <![CDATA[
             from UserToken ut where ut.userToken = :token
@@ -111,6 +149,26 @@
     <query name="UserProfileDetail.fetchUserProfileDetailBySeq">
         <![CDATA[
             from UserProfileDetail up where up.userProfile.userProfileSeq = :userProfileSeq
+        ]]>
+    </query>
+    <query name="LocationMstr.fetchAllLocations">
+        <![CDATA[
+            from LocationMstr lm where lm.status = 'A'
+        ]]>
+    </query>
+    <query name="CompanyLocation.fetchLocationsByCompany">
+        <![CDATA[
+            from CompanyLocation cl where cl.company.companySeq = :companySeq and cl.status = 'A'
+        ]]>
+    </query>
+    <query name="UserProfile.fetchUserProfileByUserId">
+        <![CDATA[
+            from UserProfile up where up.userId = :userId and up.status = 'A'
+        ]]>
+    </query>
+    <query name="UserGenre.fetchUserGenre">
+        <![CDATA[
+            from UserGenre ug where ug.userProfile.userProfileSeq = :userProfileSeq and ug.status = 'A'
         ]]>
     </query>
 </hibernate-mapping>

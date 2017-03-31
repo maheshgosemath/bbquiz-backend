@@ -13,6 +13,7 @@ public class AddCompanyCompetitionVO implements Serializable {
     private String startDate;
     private String endDate;
     private String timeLimit;
+    private String token;
 
     public String getCompetitionName() {
         return competitionName;
@@ -52,5 +53,13 @@ public class AddCompanyCompetitionVO implements Serializable {
 
     public void setTimeLimit(String timeLimit) {
         this.timeLimit = timeLimit;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }

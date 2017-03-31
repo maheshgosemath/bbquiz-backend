@@ -10,6 +10,7 @@ import javax.persistence.*;
 public class UserProfileDetail {
     private Integer userProfileDetailSeq;
     private UserProfile userProfile;
+    private LocationMstr locationMstr;
     private String userImg;
     private String userRegistrationStatus;
     private char status;
@@ -19,6 +20,14 @@ public class UserProfileDetail {
 
     public UserProfileDetail(UserProfile userProfile, String userImg, String userRegistrationStatus, char status) {
         this.userProfile = userProfile;
+        this.userImg = userImg;
+        this.userRegistrationStatus = userRegistrationStatus;
+        this.status = status;
+    }
+
+    public UserProfileDetail(UserProfile userProfile, LocationMstr locationMstr, String userImg, String userRegistrationStatus, char status) {
+        this.userProfile = userProfile;
+        this.locationMstr = locationMstr;
         this.userImg = userImg;
         this.userRegistrationStatus = userRegistrationStatus;
         this.status = status;
@@ -43,6 +52,16 @@ public class UserProfileDetail {
 
     public void setUserProfile(UserProfile userProfile) {
         this.userProfile = userProfile;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "LOCATION_MSTR_SEQ", nullable = false)
+    public LocationMstr getLocationMstr() {
+        return locationMstr;
+    }
+
+    public void setLocationMstr(LocationMstr locationMstr) {
+        this.locationMstr = locationMstr;
     }
 
     @Column(name = "USER_IMG", nullable = true)

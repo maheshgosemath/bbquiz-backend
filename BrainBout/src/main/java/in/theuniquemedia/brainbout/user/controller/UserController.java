@@ -6,7 +6,6 @@ import in.theuniquemedia.brainbout.common.domain.CompetitionParticipant;
 import in.theuniquemedia.brainbout.common.domain.Participant;
 import in.theuniquemedia.brainbout.common.util.CommonUtil;
 import in.theuniquemedia.brainbout.common.vo.AuthenticationVO;
-import in.theuniquemedia.brainbout.common.vo.DashboardVO;
 import in.theuniquemedia.brainbout.quiz.vo.QuizVO;
 import in.theuniquemedia.brainbout.user.service.IUser;
 import in.theuniquemedia.brainbout.user.vo.*;
@@ -103,9 +102,10 @@ public class UserController {
     public @ResponseBody ResponseEntity<QuizResponseVO> fetchQuizList(@RequestBody QuizRequestVO quizRequestVO) {
         QuizResponseVO quizResponseVO = new QuizResponseVO();
         try {
+            String userId = quizRequestVO.getEmail();
             List<Integer> quizSeqVOList = quizRequestVO.getQuizSeqList();
             if(quizSeqVOList == null) {
-                quizSeqVOList = commonDelegate.fetchQuizList(quizRequestVO.getCompetitionSeq(), 2);
+                quizSeqVOList = commonDelegate.fetchQuizList(userId, 2);
             }
             if(quizSeqVOList != null) {
                 List<QuizVO> quizVOList = commonDelegate.fetchQuizVOList(quizSeqVOList);
@@ -201,7 +201,6 @@ public class UserController {
         JSONObject jsonObject = new JSONObject();
         try {
             String userId = CommonUtil.getUserName();
-            userService.fetchUserDashboard(userVO.getCompanySeq(), userId);
             jsonObject.put("dashboard", userService.fetchUserDashboard(userVO.getCompanySeq(), userId));
             return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
         } catch(Exception e) {
@@ -227,6 +226,18 @@ public class UserController {
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("leaderboard", userService.fetchCompetitionTopPlayers(companySeq, competitionSeq));
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
+        } catch(Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @RequestMapping(value="competitionleaderboardlocation")
+    public @ResponseBody ResponseEntity<String> fetchCompetitionLeaderBoardByLocation(Integer companySeq, Integer competitionSeq, String userId) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("leaderboard", userService.fetchTopPlayersByLocation(userId, companySeq, competitionSeq));
             return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
         } catch(Exception e) {
             e.printStackTrace();

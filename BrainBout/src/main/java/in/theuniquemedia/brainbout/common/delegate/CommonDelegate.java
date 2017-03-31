@@ -7,6 +7,7 @@ import in.theuniquemedia.brainbout.admin.vo.QuestionVO;
 import in.theuniquemedia.brainbout.common.domain.*;
 import in.theuniquemedia.brainbout.common.service.ICommon;
 import in.theuniquemedia.brainbout.common.vo.CommonDetailsVO;
+import in.theuniquemedia.brainbout.common.vo.CompanyLocationVO;
 import in.theuniquemedia.brainbout.common.vo.CompetitionVO;
 import in.theuniquemedia.brainbout.quiz.service.IQuiz;
 import in.theuniquemedia.brainbout.quiz.vo.QuizVO;
@@ -57,8 +58,8 @@ public class CommonDelegate {
         return commonService.fetchCompanyCompetitionBySeq(companySeq, competitionSeq);
     }
 
-    public List<Integer> fetchQuizList(Integer competitionSeq, Integer maxCount) {
-        return quizService.fetchQuizList(competitionSeq, maxCount);
+    public List<Integer> fetchQuizList(String userId, Integer maxCount) {
+        return quizService.fetchQuizList(userId, maxCount);
     }
 
     public List<QuizVO> fetchQuizVOList(List<Integer> quizSeqList) {
@@ -113,7 +114,35 @@ public class CommonDelegate {
         return commonService.fetchCompetitionDetails(token);
     }
 
-    public List<CompetitionVO> fetchActiveCompetitionList(Integer companySeq) {
-        return commonService.fetchCompetitionList(companySeq);
+    public List<CompetitionVO> fetchActiveCompetitionList(Integer companySeq, Integer locationSeq, String status) {
+        return commonService.fetchCompetitionList(companySeq, locationSeq, status);
+    }
+
+    public CompanyCompetition fetchCompanyCompetitionDetails(String ref) {
+        return commonService.fetchCompanyCompetitionDetails(ref);
+    }
+
+    public List<CommonDetailsVO> fetchLocationDetails() {
+        return commonService.fetchLocationDetails();
+    }
+
+    public List<CompanyLocation> fetchLocationsByCompanySeq(Integer companySeq) {
+        return commonService.fetchLocationsByCompanySeq(companySeq);
+    }
+
+    public UserProfile fetchUserProfileByUserId(String userId) {
+        return userService.fetchUserProfileByUserId(userId);
+    }
+
+    public List<UserGenre> fetchUserGenre(String userId) {
+        return userService.fetchUserGenre(userId);
+    }
+
+    public List<Integer> fetchGenreSeqList() {
+        return commonService.fetchGenreSeqList();
+    }
+
+    public List<CompanyLocationVO> fetchCompanyLocationDetails() {
+        return commonService.fetchCompanyLocationDetails();
     }
  }

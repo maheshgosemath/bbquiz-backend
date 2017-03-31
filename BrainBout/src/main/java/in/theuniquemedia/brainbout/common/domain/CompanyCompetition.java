@@ -12,6 +12,7 @@ public class CompanyCompetition {
     private Integer companyCompetition;
     private Company company;
     private Competition competition;
+    private LocationMstr locationMstr;
     private String refCode;
     private Date startTime;
     private Date endTime;
@@ -24,6 +25,17 @@ public class CompanyCompetition {
     public CompanyCompetition(Company company, Competition competition, String refCode, Date startTime, Date endTime, String timeLimit, char status) {
         this.company = company;
         this.competition = competition;
+        this.refCode = refCode;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.timeLimit = timeLimit;
+        this.status = status;
+    }
+
+    public CompanyCompetition(Company company, Competition competition, LocationMstr locationMstr, String refCode, Date startTime, Date endTime, String timeLimit, char status) {
+        this.company = company;
+        this.competition = competition;
+        this.locationMstr = locationMstr;
         this.refCode = refCode;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -60,6 +72,16 @@ public class CompanyCompetition {
 
     public void setCompetition(Competition competition) {
         this.competition = competition;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "LOCATION_MSTR_SEQ", nullable = false)
+    public LocationMstr getLocationMstr() {
+        return locationMstr;
+    }
+
+    public void setLocationMstr(LocationMstr locationMstr) {
+        this.locationMstr = locationMstr;
     }
 
     @Column(name = "REF_CODE")
