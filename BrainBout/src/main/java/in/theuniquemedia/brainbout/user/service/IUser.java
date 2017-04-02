@@ -6,6 +6,7 @@ import in.theuniquemedia.brainbout.common.domain.UserGenre;
 import in.theuniquemedia.brainbout.common.domain.UserProfile;
 import in.theuniquemedia.brainbout.common.vo.AuthenticationVO;
 import in.theuniquemedia.brainbout.common.vo.CommonDetailsVO;
+import in.theuniquemedia.brainbout.common.vo.CompetitionDetailsVO;
 import in.theuniquemedia.brainbout.common.vo.UserCompetitionVO;
 import in.theuniquemedia.brainbout.quiz.vo.QuizOptionVO;
 import in.theuniquemedia.brainbout.user.vo.DashboardVO;
@@ -86,4 +87,10 @@ public interface IUser {
 
     @Transactional
     List<UserGenre> fetchUserGenre(String userId);
+
+    @Transactional
+    boolean verifyExistingUserProfile(String userId);
+
+    @Transactional
+    CompetitionDetailsVO fetchCompetitionDetails(Integer companySeq, Integer competitionSeq);
 }

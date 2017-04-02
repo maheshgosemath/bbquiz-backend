@@ -200,13 +200,13 @@ public class UserService implements IUser {
         if(companyCompetition != null) {
             CompetitionParticipant competitionParticipant = getUserCompetitionData(email, competitionSeq);
             if(competitionParticipant != null) {
-                minTime = Integer.valueOf(companyCompetition.getTimeLimit());
+                minTime = Integer.valueOf(companyCompetition.getTimeLimit()) * 60;
                 if (competitionParticipant.getStartTime() != null) {
-                    Long userTime = Integer.valueOf(companyCompetition.getTimeLimit()) -
-                            (CommonUtil.getNoOfMinutesDiff(new Date(), competitionParticipant.getStartTime()));
+                    Long userTime = (Integer.valueOf(companyCompetition.getTimeLimit()) * 60) -
+                            (CommonUtil.getNoOfSecondsDiff(new Date(), competitionParticipant.getStartTime()));
                     minTime = Integer.min(minTime, userTime.intValue());
                 }
-                Long competitionTime = CommonUtil.getNoOfMinutesDiff(companyCompetition.getEndTime(), new Date());
+                Long competitionTime = CommonUtil.getNoOfSecondsDiff(companyCompetition.getEndTime(), new Date());
                 minTime = Integer.min(minTime, competitionTime.intValue());
             }
         }
@@ -580,5 +580,21 @@ public class UserService implements IUser {
             }
         }
         return null;
+    }
+
+    @Override
+    @Transactional
+    public boolean verifyExistingUserProfile(String userId) {
+        UserProfile userProfile = fetchUserProfileByUserId(userId);
+        if(userProfile == null) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    @Transactional
+    public CompetitionDetailsVO fetchCompetitionDetails(Integer companySeq, Integer competitionSeq) {
+        return commonDelegate.fetchCompetitionDetails(companySeq, competitionSeq);
     }
 }

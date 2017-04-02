@@ -79,4 +79,7 @@ public interface ICommon {
 
     @Transactional
     List<CompanyLocationVO> fetchCompanyLocationDetails();
+
+    @Transactional
+    CompetitionDetailsVO fetchCompetitionDetails(Integer companySeq, Integer competitionSeq);
 }

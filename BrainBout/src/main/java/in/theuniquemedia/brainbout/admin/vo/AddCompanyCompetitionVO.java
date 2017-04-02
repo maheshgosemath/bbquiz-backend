@@ -9,6 +9,7 @@ import java.util.List;
  */
 public class AddCompanyCompetitionVO implements Serializable {
     private String competitionName;
+    private String competitionSubTitle;
     private List<CommonDetailsVO> commonDetailsVOList;
     private String startDate;
     private String endDate;
@@ -21,6 +22,14 @@ public class AddCompanyCompetitionVO implements Serializable {
 
     public void setCompetitionName(String competitionName) {
         this.competitionName = competitionName;
+    }
+
+    public String getCompetitionSubTitle() {
+        return competitionSubTitle;
+    }
+
+    public void setCompetitionSubTitle(String competitionSubTitle) {
+        this.competitionSubTitle = competitionSubTitle;
     }
 
     public List<CommonDetailsVO> getCommonDetailsVOList() {

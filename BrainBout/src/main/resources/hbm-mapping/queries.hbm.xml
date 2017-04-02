@@ -171,4 +171,9 @@
             from UserGenre ug where ug.userProfile.userProfileSeq = :userProfileSeq and ug.status = 'A'
         ]]>
     </query>
+    <query name="CompanyCompetitionText.fetchCompanyCompetitionText">
+        <![CDATA[
+            from CompanyCompetitionText cct where cct.companySeq = :companySeq and cct.status = 'A'
+        ]]>
+    </query>
 </hibernate-mapping>

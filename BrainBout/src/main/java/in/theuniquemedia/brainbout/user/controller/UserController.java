@@ -169,10 +169,15 @@ public class UserController {
         try {
             boolean validateDomain = userService.verifyUserEmail(userRegistrationRequestVO.getUserVO().getEmail(), userRegistrationRequestVO.getCompanySeq());
             if(validateDomain) {
-                userService.createUser(userRegistrationRequestVO);
-                jsonObject.put("status", "success");
+                if(!userService.verifyExistingUserProfile(userRegistrationRequestVO.getUserVO().getEmail())) {
+                    userService.createUser(userRegistrationRequestVO);
+                    jsonObject.put("status", "success");
+                } else {
+                    jsonObject.put("msg", "User with this email already exists");
+                    jsonObject.put("status", "error");
+                }
             } else {
-                jsonObject.put("msg", "Invalid email domain");
+                jsonObject.put("msg", "This email is not allowed in selected company");
                 jsonObject.put("status", "error");
             }
             return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
@@ -262,6 +267,18 @@ public class UserController {
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("status", userService.verifyToken(userTokenVO.getToken()));
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
+        } catch(Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @RequestMapping(value="usercompetitiondetails")
+    public @ResponseBody ResponseEntity<String> fetchCompanyCompetitionDetails(Integer companySeq, Integer competitionSeq) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("competitiondetails", userService.fetchCompetitionDetails(companySeq, competitionSeq));
             return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
         } catch(Exception e) {
             e.printStackTrace();

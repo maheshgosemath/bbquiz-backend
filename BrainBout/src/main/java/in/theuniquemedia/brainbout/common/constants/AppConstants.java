@@ -6,6 +6,8 @@ package in.theuniquemedia.brainbout.common.constants;
 public interface AppConstants {
     public final Character STATUS_ACTIVE='A';
     public final Character STATUS_INACTIVE='I';
+    public final Character CHAR_Y='Y';
+    public final Character CHAR_N='N';
     public final String FACEBOOK_USER_AGENT = "facebookexternalhit";
     public final String LINKEDIN_USER_AGENT = "LinkedInBot";
     public final String TWITTER_USER_AGENT = "Twitterbot";
@@ -48,4 +50,5 @@ public interface AppConstants {
     public final String FETCH_LOCATIONS_BY_COMPANY="CompanyLocation.fetchLocationsByCompany";
     public final String FETCH_USER_PROFILE_BY_USER_ID="UserProfile.fetchUserProfileByUserId";
     public final String FETCH_USER_GENRE="UserGenre.fetchUserGenre";
+    public final String FETCH_COMPANY_COMPETITION_TEXT="CompanyCompetitionText.fetchCompanyCompetitionText";
 }

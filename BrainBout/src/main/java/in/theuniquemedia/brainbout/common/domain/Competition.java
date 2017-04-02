@@ -11,6 +11,7 @@ import java.util.Date;
 public class Competition {
     private Integer competitionSeq;
     private String competitionName;
+    private String competitionSubTitle;
     private Integer noOfQuestions;
     private char status;
 
@@ -19,6 +20,13 @@ public class Competition {
 
     public Competition(String competitionName, Integer noOfQuestions, char status) {
         this.competitionName = competitionName;
+        this.noOfQuestions = noOfQuestions;
+        this.status = status;
+    }
+
+    public Competition(String competitionName, String competitionSubTitle, Integer noOfQuestions, char status) {
+        this.competitionName = competitionName;
+        this.competitionSubTitle = competitionSubTitle;
         this.noOfQuestions = noOfQuestions;
         this.status = status;
     }
@@ -41,6 +49,15 @@ public class Competition {
 
     public void setCompetitionName(String competitionName) {
         this.competitionName = competitionName;
+    }
+
+    @Column(name = "COMPETITION_SUB_TITLE")
+    public String getCompetitionSubTitle() {
+        return competitionSubTitle;
+    }
+
+    public void setCompetitionSubTitle(String competitionSubTitle) {
+        this.competitionSubTitle = competitionSubTitle;
     }
 
     @Column(name = "NO_OF_QUESTIONS")

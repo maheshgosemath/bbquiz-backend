@@ -45,6 +45,9 @@ public class CommonService implements ICommon {
     @Autowired
     IRepository<CompanyLocation, Integer> companyLocationRepository;
 
+    @Autowired
+    IRepository<CompanyCompetitionText, Integer> companyCompetitionTextRepository;
+
     @Override
     @Transactional
     public Genre fetchGenreBySeq(Integer genreSeq) {
@@ -102,6 +105,7 @@ public class CommonService implements ICommon {
             AddCompetitionVO addCompetitionVO = new AddCompetitionVO();
             if(companyCompetition.getCompanyCompetition() != null) {
                 addCompetitionVO.setCompetitionName(companyCompetition.getCompetition().getCompetitionName());
+                addCompetitionVO.setCompetitionSubTitle(companyCompetition.getCompetition().getCompetitionSubTitle());
             }
             if(companyCompetition.getCompany() != null) {
                 addCompetitionVO.setCompanyName(companyCompetition.getCompany().getCompanyName());
@@ -433,5 +437,41 @@ public class CommonService implements ICommon {
             }
         }
         return companyLocationVOList;
+    }
+
+    @Transactional
+    public CompanyCompetitionText fetchCompanyCompetitionText(Integer companySeq) {
+        HashMap<String, Object> queryParams = new HashMap<>();
+        queryParams.put("companySeq", companySeq);
+        List<CompanyCompetitionText> companyCompetitionTextList = companyCompetitionTextRepository.findByNamedQuery(AppConstants.FETCH_COMPANY_COMPETITION_TEXT,
+                queryParams);
+        if(companyCompetitionTextList != null && companyCompetitionTextList.size() > 0) {
+            return companyCompetitionTextList.get(0);
+        }
+        return null;
+    }
+
+    @Override
+    @Transactional
+    public CompetitionDetailsVO fetchCompetitionDetails(Integer companySeq, Integer competitionSeq) {
+        CompetitionDetailsVO competitionDetailsVO = new CompetitionDetailsVO();
+        Competition competition = fetchCompetitionBySeq(competitionSeq);
+        if(competition != null) {
+            Company company = fetchCompanyBySeq(companySeq);
+
+            competitionDetailsVO.setCompetitionTitle(competition.getCompetitionName());
+            competitionDetailsVO.setCompetitionSubTitle(competition.getCompetitionSubTitle());
+            if(company != null) {
+                Integer companyId = companySeq;
+                if(company.getCustomCompanyText() != AppConstants.CHAR_Y) {
+                    companyId = 0;
+                }
+                CompanyCompetitionText companyCompetitionText = fetchCompanyCompetitionText(companyId);
+                if(companyCompetitionText != null) {
+                    competitionDetailsVO.setCompetitionText(companyCompetitionText.getCompanyText());
+                }
+            }
+        }
+        return competitionDetailsVO;
     }
 }

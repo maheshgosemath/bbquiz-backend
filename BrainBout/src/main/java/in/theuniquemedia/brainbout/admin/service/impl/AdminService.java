@@ -56,6 +56,7 @@ public class AdminService implements IAdmin {
         company.setCompanyName(addCorporateVO.getCorporateName());
         company.setSpocEmail(addCorporateVO.getSpocEmail());
         company.setSpocName(addCorporateVO.getSpocName());
+        company.setCustomCompanyText(AppConstants.CHAR_N);
         company.setStatus(AppConstants.STATUS_ACTIVE);
 
         return companyRepository.save(company);
@@ -120,6 +121,7 @@ public class AdminService implements IAdmin {
         addCompetitionVO.setCompetitionName(addCompanyCompetitionVO.getCompetitionName());
         addCompetitionVO.setStartDate(addCompanyCompetitionVO.getStartDate());
         addCompetitionVO.setEndDate(addCompanyCompetitionVO.getEndDate());
+        addCompetitionVO.setCompetitionSubTitle(addCompanyCompetitionVO.getCompetitionSubTitle());
         addCompetitionVO.setTimeLimit(Integer.parseInt(addCompanyCompetitionVO.getTimeLimit()));
         for(CommonDetailsVO companyDetailsVO: addCompanyCompetitionVO.getCommonDetailsVOList()) {
             Integer competitionSeq = createCompetition(addCompetitionVO);
@@ -150,6 +152,7 @@ public class AdminService implements IAdmin {
             Competition competition = companyCompetition.getCompetition();
             if(competition != null) {
                 competition.setCompetitionName(addCompanyCompetitionVO.getCompetitionName());
+                competition.setCompetitionSubTitle(addCompanyCompetitionVO.getCompetitionSubTitle());
                 competitionRepository.merge(competition);
             }
             companyCompetitionRepository.merge(companyCompetition);

@@ -28,13 +28,17 @@
 	<http pattern="/locationdetails" security="none"/>
 	<http pattern="/companylocations" security="none"/>
 	<http pattern="/companylocationdetails" security="none"/>
+	<http pattern="/logout" security="none"/>
+
+	<beans:bean id="ajaxTimeoutRedirectFilter" class="in.theuniquemedia.brainbout.common.authentication.AjaxTimeoutRedirectFilter"/>
 
 	<http use-expressions="true" auto-config="true">
 		<intercept-url pattern="/**" access="hasAnyRole('ROLE_USER')"/>
+		<custom-filter ref="ajaxTimeoutRedirectFilter" after="EXCEPTION_TRANSLATION_FILTER"/>
 		<form-login authentication-success-handler-ref="mySuccessHandler"
 					authentication-failure-handler-ref="myFailureHandler"/>
+		<logout delete-cookies="JSESSIONID" success-handler-ref="logoutSuccessHandler"/>
 	</http>
-
 
 	<beans:bean id="mySuccessHandler"
 				class="in.theuniquemedia.brainbout.common.authentication.AjaxAuthenticationSuccessHandler"/>

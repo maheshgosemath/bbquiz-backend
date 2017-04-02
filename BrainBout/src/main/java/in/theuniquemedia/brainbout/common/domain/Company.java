@@ -13,6 +13,7 @@ public class Company {
     private String companyName;
     private String spocName;
     private String spocEmail;
+    private char customCompanyText;
     private char status;
 
     public Company() {
@@ -22,6 +23,14 @@ public class Company {
         this.companyName = companyName;
         this.spocName = spocName;
         this.spocEmail = spocEmail;
+        this.status = status;
+    }
+
+    public Company(String companyName, String spocName, String spocEmail, char customCompanyText, char status) {
+        this.companyName = companyName;
+        this.spocName = spocName;
+        this.spocEmail = spocEmail;
+        this.customCompanyText = customCompanyText;
         this.status = status;
     }
 
@@ -61,6 +70,15 @@ public class Company {
 
     public void setSpocEmail(String spocEmail) {
         this.spocEmail = spocEmail;
+    }
+
+    @Column(name="COMPANY_CUSTOM_TEXT")
+    public char getCustomCompanyText() {
+        return customCompanyText;
+    }
+
+    public void setCustomCompanyText(char customCompanyText) {
+        this.customCompanyText = customCompanyText;
     }
 
     @Column(name="STATUS")

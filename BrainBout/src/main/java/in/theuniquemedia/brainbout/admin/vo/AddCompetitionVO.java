@@ -9,6 +9,7 @@ public class AddCompetitionVO implements Serializable {
     private Integer competitionSeq;
     private String companyName;
     private String competitionName;
+    private String competitionSubTitle;
     private Integer companySeq;
     private String startDate;
     private String endDate;
@@ -38,6 +39,14 @@ public class AddCompetitionVO implements Serializable {
 
     public void setCompetitionName(String competitionName) {
         this.competitionName = competitionName;
+    }
+
+    public String getCompetitionSubTitle() {
+        return competitionSubTitle;
+    }
+
+    public void setCompetitionSubTitle(String competitionSubTitle) {
+        this.competitionSubTitle = competitionSubTitle;
     }
 
     public Integer getCompanySeq() {

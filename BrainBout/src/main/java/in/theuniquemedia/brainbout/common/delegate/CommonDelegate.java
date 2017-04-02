@@ -8,6 +8,7 @@ import in.theuniquemedia.brainbout.common.domain.*;
 import in.theuniquemedia.brainbout.common.service.ICommon;
 import in.theuniquemedia.brainbout.common.vo.CommonDetailsVO;
 import in.theuniquemedia.brainbout.common.vo.CompanyLocationVO;
+import in.theuniquemedia.brainbout.common.vo.CompetitionDetailsVO;
 import in.theuniquemedia.brainbout.common.vo.CompetitionVO;
 import in.theuniquemedia.brainbout.quiz.service.IQuiz;
 import in.theuniquemedia.brainbout.quiz.vo.QuizVO;
@@ -144,5 +145,9 @@ public class CommonDelegate {
 
     public List<CompanyLocationVO> fetchCompanyLocationDetails() {
         return commonService.fetchCompanyLocationDetails();
+    }
+
+    public CompetitionDetailsVO fetchCompetitionDetails(Integer companySeq, Integer competitionSeq) {
+        return commonService.fetchCompetitionDetails(companySeq, competitionSeq);
     }
  }
