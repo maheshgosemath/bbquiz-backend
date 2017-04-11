@@ -10,6 +10,7 @@ import java.util.List;
 public class AddCompanyCompetitionVO implements Serializable {
     private String competitionName;
     private String competitionSubTitle;
+    private List<CompanyDetailsVO> companyDetailsVO;
     private List<CommonDetailsVO> commonDetailsVOList;
     private String startDate;
     private String endDate;
@@ -30,6 +31,14 @@ public class AddCompanyCompetitionVO implements Serializable {
 
     public void setCompetitionSubTitle(String competitionSubTitle) {
         this.competitionSubTitle = competitionSubTitle;
+    }
+
+    public List<CompanyDetailsVO> getCompanyDetailsVO() {
+        return companyDetailsVO;
+    }
+
+    public void setCompanyDetailsVO(List<CompanyDetailsVO> companyDetailsVO) {
+        this.companyDetailsVO = companyDetailsVO;
     }
 
     public List<CommonDetailsVO> getCommonDetailsVOList() {

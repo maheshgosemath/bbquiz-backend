@@ -91,6 +91,12 @@ public class CommonService implements ICommon {
 
     @Override
     @Transactional
+    public LocationMstr fetchLocationMstrBySeq(Integer locationMstrSeq) {
+        return locationMstrRepository.findById(LocationMstr.class, locationMstrSeq);
+    }
+
+    @Override
+    @Transactional
     public List<AddCompetitionVO> fetchCompanyCompetitionList() {
         List<CompanyCompetition> companyCompetitionList = companyCompetitionRepository.findByNamedQuery(AppConstants.FETCH_COMPETITION_LIST);
         if(companyCompetitionList != null) {
@@ -316,8 +322,8 @@ public class CommonService implements ICommon {
             addCompetitionVO.setCompanyName(companyCompetition.getCompany().getCompanyName());
             addCompetitionVO.setCompetitionName(companyCompetition.getCompetition().getCompetitionName());
             addCompetitionVO.setCompetitionSeq(companyCompetition.getCompetition().getCompetitionSeq());
-            addCompetitionVO.setStartDate(CommonUtil.convertUtilDateToString(companyCompetition.getStartTime(), "yyyy-MM-dd"));
-            addCompetitionVO.setEndDate(CommonUtil.convertUtilDateToString(companyCompetition.getEndTime(), "yyyy-MM-dd"));
+            addCompetitionVO.setStartDate(CommonUtil.convertUtilDateToString(companyCompetition.getStartTime(), "yyyy-MM-dd hh:mm:ss"));
+            addCompetitionVO.setEndDate(CommonUtil.convertUtilDateToString(companyCompetition.getEndTime(), "yyyy-MM-dd hh:mm:ss"));
             addCompetitionVO.setTimeLimit(Integer.parseInt(companyCompetition.getTimeLimit()));
         }
         return addCompetitionVO;

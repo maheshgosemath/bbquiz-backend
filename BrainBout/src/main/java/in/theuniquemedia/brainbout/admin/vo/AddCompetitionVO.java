@@ -16,6 +16,7 @@ public class AddCompetitionVO implements Serializable {
     private Integer timeLimit;
     private String token;
     private String status;
+    private Integer locationSeq;
 
     public Integer getCompetitionSeq() {
         return competitionSeq;
@@ -95,5 +96,13 @@ public class AddCompetitionVO implements Serializable {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Integer getLocationSeq() {
+        return locationSeq;
+    }
+
+    public void setLocationSeq(Integer locationSeq) {
+        this.locationSeq = locationSeq;
     }
 }

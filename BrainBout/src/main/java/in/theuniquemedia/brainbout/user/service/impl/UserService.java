@@ -322,7 +322,8 @@ public class UserService implements IUser {
         model.put("link", PropertiesUtil.getPropValue("app.verification.url") + userTokenString);
         String message = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, "template/mails/registration.vm", model);
         EmailVO emailVO = new EmailVO(PropertiesUtil.getPropValue("email.sender"), userVO.getEmail(), message,
-                PropertiesUtil.getPropValue("email.sender.label"), userVO.getFirstName() + " " + userVO.getLastName(), "Welcome to brainbout");
+                PropertiesUtil.getPropValue("email.sender.label"), userVO.getFirstName() + " " + userVO.getLastName(),
+                PropertiesUtil.getPropValue("email.subject"));
         emailService.sendMail(emailVO);
     }
 

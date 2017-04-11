@@ -101,12 +101,14 @@ public class AdminService implements IAdmin {
         CompanyCompetition companyCompetition = new CompanyCompetition();
         Company company = commonDelegate.fetchCompanyBySeq(addCompetitionVO.getCompanySeq());
         Competition competition = commonDelegate.fetchCompetitionBySeq(addCompetitionVO.getCompetitionSeq());
+        LocationMstr locationMstr = commonDelegate.fetchLocationMstrBySeq(addCompetitionVO.getLocationSeq());
 
-        if(company != null && competition != null) {
+        if(company != null && competition != null && locationMstr != null) {
             companyCompetition.setCompany(company);
             companyCompetition.setCompetition(competition);
-            companyCompetition.setStartTime(CommonUtil.convertStringToDate(addCompetitionVO.getStartDate(), "yyyy-MM-dd"));
-            companyCompetition.setEndTime(CommonUtil.convertStringToDate(addCompetitionVO.getEndDate(), "yyyy-MM-dd"));
+            companyCompetition.setLocationMstr(locationMstr);
+            companyCompetition.setStartTime(CommonUtil.convertStringToDate(addCompetitionVO.getStartDate(), "yyyy-MM-dd hh:mm:ss"));
+            companyCompetition.setEndTime(CommonUtil.convertStringToDate(addCompetitionVO.getEndDate(), "yyyy-MM-dd hh:mm:ss"));
             companyCompetition.setTimeLimit(String.valueOf(addCompetitionVO.getTimeLimit()));
             companyCompetition.setRefCode(CommonUtil.getRandomString());
             companyCompetition.setStatus(AppConstants.STATUS_ACTIVE);
@@ -119,15 +121,18 @@ public class AdminService implements IAdmin {
     public void addCompanyCompetition(AddCompanyCompetitionVO addCompanyCompetitionVO) {
         AddCompetitionVO addCompetitionVO = new AddCompetitionVO();
         addCompetitionVO.setCompetitionName(addCompanyCompetitionVO.getCompetitionName());
-        addCompetitionVO.setStartDate(addCompanyCompetitionVO.getStartDate());
-        addCompetitionVO.setEndDate(addCompanyCompetitionVO.getEndDate());
         addCompetitionVO.setCompetitionSubTitle(addCompanyCompetitionVO.getCompetitionSubTitle());
         addCompetitionVO.setTimeLimit(Integer.parseInt(addCompanyCompetitionVO.getTimeLimit()));
-        for(CommonDetailsVO companyDetailsVO: addCompanyCompetitionVO.getCommonDetailsVOList()) {
-            Integer competitionSeq = createCompetition(addCompetitionVO);
-            addCompetitionVO.setCompetitionSeq(competitionSeq);
-            addCompetitionVO.setCompanySeq(companyDetailsVO.getSeq());
-            addCompetition(addCompetitionVO);
+        for(CompanyDetailsVO companyDetailsVO: addCompanyCompetitionVO.getCompanyDetailsVO()) {
+            for(CommonDetailsVO commonDetailsVO: companyDetailsVO.getLocationList()) {
+                Integer competitionSeq = createCompetition(addCompetitionVO);
+                addCompetitionVO.setCompetitionSeq(competitionSeq);
+                addCompetitionVO.setStartDate(companyDetailsVO.getStartDate());
+                addCompetitionVO.setEndDate(companyDetailsVO.getEndDate());
+                addCompetitionVO.setCompanySeq(companyDetailsVO.getSeq());
+                addCompetitionVO.setLocationSeq(commonDetailsVO.getSeq());
+                addCompetition(addCompetitionVO);
+            }
         }
     }
 

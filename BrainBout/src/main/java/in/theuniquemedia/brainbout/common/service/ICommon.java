@@ -24,6 +24,9 @@ public interface ICommon {
     List<CorporateVO> fetchCompanyList();
 
     @Transactional
+    LocationMstr fetchLocationMstrBySeq(Integer locationMstrSeq);
+
+    @Transactional
     List<AddCompetitionVO> fetchCompanyCompetitionList();
 
     @Transactional

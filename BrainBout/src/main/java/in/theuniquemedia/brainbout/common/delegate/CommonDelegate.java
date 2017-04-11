@@ -150,4 +150,8 @@ public class CommonDelegate {
     public CompetitionDetailsVO fetchCompetitionDetails(Integer companySeq, Integer competitionSeq) {
         return commonService.fetchCompetitionDetails(companySeq, competitionSeq);
     }
+
+    public LocationMstr fetchLocationMstrBySeq(Integer locationMstrSeq) {
+        return commonService.fetchLocationMstrBySeq(locationMstrSeq);
+    }
  }

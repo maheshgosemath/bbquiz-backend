@@ -1,6 +1,6 @@
 Hi ${username},<br/><br/>
 
-Thank you for registering on Brainbout.<br/>
+Thank you for registering for Brain Bout Web Quiz.<br/>
 Please click the following link to activate your account.<br/>
 <br/>
 ${link}
